@@ -20,9 +20,12 @@ export default function PlayerSearch({ compact = false }) {
   const [showRegion, setShowRegion] = useState(false);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { recentSearches, addRecentSearch, removeRecentSearch, region, setRegion } = usePlayerStore();
+  const { recentSearches, addRecentSearch, removeRecentSearch, region, setRegion, initializeRegion } = usePlayerStore();
 
   useEffect(() => {
+    // Initialize region based on browser language on first mount
+    initializeRegion();
+    
     function handleClick(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
@@ -31,7 +34,7 @@ export default function PlayerSearch({ compact = false }) {
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  }, [initializeRegion]);
 
   async function handleSearch(searchInput, searchRegion) {
     const val = searchInput !== undefined ? searchInput : input;
