@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { toPng } from "html-to-image";
+import { capitalizeAgent } from "@/lib/utils";
 
 export default function ShareCard({ account, stats, agentStats }) {
   const cardRef = useRef(null);
@@ -100,7 +101,7 @@ export default function ShareCard({ account, stats, agentStats }) {
                 Top Agent
               </p>
               <p style={{ color: '#ecf0f1', fontSize: '15px', fontWeight: 'bold', margin: 0 }}>
-                {topAgent.agent}
+                {capitalizeAgent(topAgent.agentId)}
               </p>
             </div>
             <div style={{ display: 'flex', gap: '16px', textAlign: 'right' }}>

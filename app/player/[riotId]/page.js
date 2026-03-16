@@ -15,7 +15,7 @@ import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar } from "
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
-import { exportJSON, exportMatchCSV } from "@/lib/exportData";
+import { exportFullJSON } from "@/lib/exportData";
 
 export default function PlayerPage({ params }) {
   const resolvedParams = use(params);
@@ -65,12 +65,8 @@ export default function PlayerPage({ params }) {
     ? mmr.tierName.replace(/\s+\d+$/, "").trim()
     : "Gold";
 
-  function handleExportJSON() {
-    exportJSON({ account, stats: aggregated, agentStats, matchStats }, (account?.gameName || 'player') + '-stats.json');
-  }
-
-  function handleExportCSV() {
-    exportMatchCSV(matches, account?.puuid, account?.gameName);
+  function handleExport() {
+    exportFullJSON(account, region, filteredMatches, account?.puuid, aggregated, agentStats);
   }
 
   if (accountError) {
@@ -99,13 +95,9 @@ export default function PlayerPage({ params }) {
         </Link>
         <div className='flex items-center gap-2'>
           <div className='flex gap-1.5'>
-            <button onClick={handleExportJSON}
+            <button onClick={handleExport}
               className='flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors'>
-              <Download size={11} /> JSON
-            </button>
-            <button onClick={handleExportCSV}
-              className='flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors'>
-              <Download size={11} /> CSV
+              <Download size={11} /> Export JSON
             </button>
           </div>
           <ThemeToggle />
