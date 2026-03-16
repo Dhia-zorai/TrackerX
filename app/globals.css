@@ -1,32 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0f1923;
-  --bg-secondary: #1a2535;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --accent: #ff4655;
-  --accent-dim: rgba(255, 70, 85, 0.15);
-  --accent-glow: rgba(255, 70, 85, 0.3);
-  --text-primary: #ecf0f1;
-  --text-secondary: #8899aa;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(255, 70, 85, 0.2);
-  --win: #4ade80;
-  --loss: #f87171;
-  --draw: #facc15;
+  /* Premium Dark Palette - Valorant Inspired */
+  --bg-primary: #0a0e27;
+  --bg-secondary: #16192b;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  
+  /* Valorant Radianite-inspired accent (vibrant purple-pink) */
+  --accent: #ff4757;
+  --accent-dim: rgba(255, 71, 87, 0.12);
+  --accent-glow: rgba(255, 71, 87, 0.25);
+  
+  /* Premium complementary accent */
+  --accent-secondary: #00d4ff;
+  --accent-secondary-dim: rgba(0, 212, 255, 0.12);
+  
+  /* Text hierarchy */
+  --text-primary: #f0f4f9;
+  --text-secondary: #7a8fa3;
+  --text-tertiary: #556b82;
+  
+  /* Borders & dividers */
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(255, 71, 87, 0.15);
+  --border-secondary: rgba(0, 212, 255, 0.1);
+  
+  /* Game outcomes */
+  --win: #00d084;
+  --loss: #ff6b6b;
+  --draw: #ffd93d;
+  
+  /* Semantic colors */
+  --danger: #ff6b6b;
+  --warning: #ffd93d;
+  --success: #00d084;
+  --info: #00d4ff;
 }
 
 [data-theme="light"] {
-  --bg-primary: #f0f4f8;
+  /* Premium Light Palette */
+  --bg-primary: #f8fafb;
   --bg-secondary: #ffffff;
-  --bg-card: rgba(0, 0, 0, 0.03);
+  --bg-card: rgba(0, 0, 0, 0.02);
+  
   --accent: #e8304e;
-  --accent-dim: rgba(232, 48, 78, 0.1);
-  --accent-glow: rgba(232, 48, 78, 0.25);
-  --text-primary: #0f1923;
-  --text-secondary: #4a5568;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-accent: rgba(232, 48, 78, 0.2);
+  --accent-dim: rgba(232, 48, 78, 0.08);
+  --accent-glow: rgba(232, 48, 78, 0.2);
+  
+  --accent-secondary: #0098cc;
+  --accent-secondary-dim: rgba(0, 152, 204, 0.08);
+  
+  --text-primary: #0a0e27;
+  --text-secondary: #556b82;
+  --text-tertiary: #7a8fa3;
+  
+  --border: rgba(0, 0, 0, 0.06);
+  --border-accent: rgba(232, 48, 78, 0.15);
+  --border-secondary: rgba(0, 152, 204, 0.1);
 }
 
 @theme inline {
@@ -52,31 +82,82 @@ body {
 
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
+.glass:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-accent);
+}
+
 .glass-accent {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-accent);
-  border-radius: 12px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
+.glass-accent:hover {
+  background: rgba(255, 71, 87, 0.06);
+  border-color: var(--accent);
+}
+
 .glow-accent {
-  box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(255, 70, 85, 0.1);
+  box-shadow: 
+    0 0 20px var(--accent-glow),
+    0 0 40px rgba(255, 71, 87, 0.1),
+    inset 0 0 20px rgba(255, 71, 87, 0.05);
+}
+
+.glow-secondary {
+  box-shadow: 
+    0 0 20px rgba(0, 212, 255, 0.2),
+    0 0 40px rgba(0, 212, 255, 0.1);
 }
 
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(255, 71, 87, 0.1); }
+  50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(255, 71, 87, 0.15); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.06) 50%, var(--bg-secondary) 75%);
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.04) 50%, var(--bg-secondary) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
+}
+
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
 }
 
 .chip-win { background: rgba(74,222,128,0.15); color: var(--win); border: 1px solid rgba(74,222,128,0.25); }

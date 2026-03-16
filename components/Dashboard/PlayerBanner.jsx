@@ -4,6 +4,29 @@ import { MapPin, Shield } from "lucide-react";
 import { useMMR } from "@/hooks/useMMR";
 import { RANK_TIERS } from "@/lib/utils";
 
+// Generate gradient based on player name hash
+function getAvatarGradient(name) {
+  const colors = [
+    { from: "#ff4757", to: "#ff6348" }, // Red-Orange
+    { from: "#00b894", to: "#00d4aa" }, // Green-Cyan
+    { from: "#0984e3", to: "#00b8d4" }, // Blue-Cyan
+    { from: "#6c5ce7", to: "#a29bfe" }, // Purple
+    { from: "#e17055", to: "#fdcb6e" }, // Orange-Yellow
+    { from: "#00b894", to: "#00cec9" }, // Teal
+    { from: "#74b9ff", to: "#81ecec" }, // Light Blue
+    { from: "#fab1a0", to: "#fd79a8" }, // Pink-Peach
+  ];
+  
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+    hash = hash & hash;
+  }
+  
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+}
+
 function RankBadge({ mmr, loading }) {
   if (loading) {
     return (
@@ -54,7 +77,8 @@ function RankBadge({ mmr, loading }) {
 export default function PlayerBanner({ account, region }) {
   if (!account) return null;
   const { gameName, tagLine, puuid } = account;
-  const initials = gameName ? gameName.slice(0, 2).toUpperCase() : '??';
+  const initials = gameName ? gameName.slice(0, 1).toUpperCase() : '?';
+  const gradient = getAvatarGradient(gameName || '');
 
   const { data: mmr, isLoading: mmrLoading } = useMMR({ puuid, region });
 
@@ -75,8 +99,17 @@ export default function PlayerBanner({ account, region }) {
             className='w-16 h-16 rounded-full object-cover shrink-0 ring-2 ring-[var(--accent)] glow-accent'
           />
         ) : (
-          <div className='w-16 h-16 rounded-full bg-[var(--accent)] flex items-center justify-center text-white font-bold text-xl shrink-0 glow-accent'>
+          <div
+            className='w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl shrink-0 glow-accent relative'
+            style={{
+              background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`,
+              boxShadow: `0 0 20px ${gradient.from}40`,
+            }}
+          >
             {initials}
+            <div className='absolute inset-0 rounded-full opacity-20 mix-blend-overlay' style={{
+              background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent)',
+            }} />
           </div>
         )}
 

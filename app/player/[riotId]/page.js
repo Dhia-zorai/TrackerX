@@ -15,6 +15,7 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
 import { exportJSON, exportMatchCSV } from "@/lib/exportData";
+import { generateMetadata } from "./metadata";
 
 export default function PlayerPage({ params }) {
   const resolvedParams = use(params);
