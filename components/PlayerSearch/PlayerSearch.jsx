@@ -9,6 +9,8 @@ import { parseRiotId, encodeRiotIdForUrl } from "@/lib/utils";
 const REGIONS = [
   { value: "na", label: "NA" },
   { value: "eu", label: "EU" },
+  { value: "ap", label: "AP" },
+  { value: "kr", label: "KR" },
 ];
 
 export default function PlayerSearch({ compact = false }) {
@@ -76,7 +78,8 @@ export default function PlayerSearch({ compact = false }) {
           <AnimatePresence>
             {showRegion && (
               <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                className="absolute top-full left-0 mt-1 glass-accent rounded-lg overflow-hidden z-50 min-w-[80px]">
+                className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 min-w-[80px] border border-[var(--border-accent)]"
+                style={{ background: 'var(--bg-elevated)' }}>
                 {REGIONS.map(r => {
                   const cls = "w-full px-4 py-2 text-sm text-left hover:bg-[var(--accent-dim)] transition-colors " + (r.value === region ? "text-[var(--accent)] font-medium" : "text-[var(--text-secondary)]");
                   return (
@@ -125,7 +128,8 @@ export default function PlayerSearch({ compact = false }) {
       <AnimatePresence>
         {showDropdown && recentSearches.length > 0 && !compact && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className="absolute top-full left-0 right-0 mt-2 glass-accent rounded-xl overflow-hidden z-40">
+            className="absolute top-full left-0 right-0 mt-2 rounded-xl overflow-hidden z-40 border border-[var(--border-accent)]"
+            style={{ background: 'var(--bg-elevated)' }}>
             <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
               <span className="text-xs font-medium text-[var(--text-secondary)]">Recent Searches</span>
               <button onClick={() => usePlayerStore.getState().clearRecentSearches()}

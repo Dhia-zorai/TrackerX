@@ -5,5 +5,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'media.valorant-api.com' },
     ],
   },
+  experimental: {
+    forceSwcTransforms: true,
+  },
 };
 export default nextConfig;

@@ -1,167 +1,236 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
-  /* Premium Dark Palette - Valorant Inspired */
-  --bg-primary: #0a0e27;
-  --bg-secondary: #16192b;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  
-  /* Valorant Radianite-inspired accent (vibrant purple-pink) */
-  --accent: #ff4757;
-  --accent-dim: rgba(255, 71, 87, 0.12);
-  --accent-glow: rgba(255, 71, 87, 0.25);
-  
-  /* Premium complementary accent */
-  --accent-secondary: #00d4ff;
-  --accent-secondary-dim: rgba(0, 212, 255, 0.12);
-  
+  /* Backgrounds — deep navy-slate, not pure black */
+  --bg-primary:   #080b14;
+  --bg-secondary: #0d1120;
+  --bg-elevated:  #111827;
+  --bg-card:      rgba(255, 255, 255, 0.035);
+  --bg-card-hover:rgba(255, 255, 255, 0.055);
+
+  /* Brand accent — electric violet-indigo */
+  --accent:           #7c5cfc;
+  --accent-bright:    #9d7ffe;
+  --accent-dim:       rgba(124, 92, 252, 0.14);
+  --accent-glow:      rgba(124, 92, 252, 0.30);
+  --accent-border:    rgba(124, 92, 252, 0.25);
+
+  /* Secondary accent — cyan */
+  --accent2:          #22d3ee;
+  --accent2-dim:      rgba(34, 211, 238, 0.10);
+  --accent2-border:   rgba(34, 211, 238, 0.20);
+
   /* Text hierarchy */
-  --text-primary: #f0f4f9;
-  --text-secondary: #7a8fa3;
-  --text-tertiary: #556b82;
-  
-  /* Borders & dividers */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(255, 71, 87, 0.15);
-  --border-secondary: rgba(0, 212, 255, 0.1);
-  
+  --text-primary:   #e8edf5;
+  --text-secondary: #6b7fa0;
+  --text-muted:     #414e66;
+
+  /* Borders */
+  --border:         rgba(255, 255, 255, 0.065);
+  --border-accent:  rgba(124, 92, 252, 0.22);
+  --border-subtle:  rgba(255, 255, 255, 0.04);
+
   /* Game outcomes */
-  --win: #00d084;
-  --loss: #ff6b6b;
-  --draw: #ffd93d;
-  
-  /* Semantic colors */
-  --danger: #ff6b6b;
-  --warning: #ffd93d;
-  --success: #00d084;
-  --info: #00d4ff;
+  --win:   #34d399;
+  --loss:  #f87171;
+  --draw:  #fbbf24;
+  --win-dim:  rgba(52, 211, 153, 0.12);
+  --loss-dim: rgba(248, 113, 113, 0.12);
+  --draw-dim: rgba(251, 191, 36, 0.12);
+
+  /* Utility */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 }
 
 [data-theme="light"] {
-  /* Premium Light Palette */
-  --bg-primary: #f8fafb;
-  --bg-secondary: #ffffff;
-  --bg-card: rgba(0, 0, 0, 0.02);
-  
-  --accent: #e8304e;
-  --accent-dim: rgba(232, 48, 78, 0.08);
-  --accent-glow: rgba(232, 48, 78, 0.2);
-  
-  --accent-secondary: #0098cc;
-  --accent-secondary-dim: rgba(0, 152, 204, 0.08);
-  
-  --text-primary: #0a0e27;
-  --text-secondary: #556b82;
-  --text-tertiary: #7a8fa3;
-  
-  --border: rgba(0, 0, 0, 0.06);
-  --border-accent: rgba(232, 48, 78, 0.15);
-  --border-secondary: rgba(0, 152, 204, 0.1);
+  --bg-primary:    #f4f6fb;
+  --bg-secondary:  #ffffff;
+  --bg-elevated:   #edf0f7;
+  --bg-card:       rgba(0, 0, 0, 0.025);
+  --bg-card-hover: rgba(0, 0, 0, 0.04);
+
+  --accent:           #6d48f5;
+  --accent-bright:    #8a68ff;
+  --accent-dim:       rgba(109, 72, 245, 0.10);
+  --accent-glow:      rgba(109, 72, 245, 0.20);
+  --accent-border:    rgba(109, 72, 245, 0.20);
+
+  --accent2:          #06b6d4;
+  --accent2-dim:      rgba(6, 182, 212, 0.08);
+  --accent2-border:   rgba(6, 182, 212, 0.18);
+
+  --text-primary:   #0d1120;
+  --text-secondary: #5a6a88;
+  --text-muted:     #8fa0be;
+
+  --border:         rgba(0, 0, 0, 0.07);
+  --border-accent:  rgba(109, 72, 245, 0.18);
+  --border-subtle:  rgba(0, 0, 0, 0.035);
+
+  --win:   #059669;
+  --loss:  #dc2626;
+  --draw:  #d97706;
+  --win-dim:  rgba(5, 150, 105, 0.10);
+  --loss-dim: rgba(220, 38, 38, 0.10);
+  --draw-dim: rgba(217, 119, 6, 0.10);
 }
 
+/* ─── Tailwind Theme Bridge ──────────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+/* Note: Tailwind v4 preflight already resets margin/padding/box-sizing.     */
+/* Do NOT add margin:0 or padding:0 here — unlayered CSS overrides layered   */
+/* utilities, which would break all Tailwind spacing classes (p-*, m-*, etc) */
+html { scroll-behavior: smooth; width: 100%; }
 
 body {
+  width: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 3px; }
+/* Scrollbar */
+::-webkit-scrollbar         { width: 5px; height: 5px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: rgba(124,92,252,0.25); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+/* Focus ring */
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ─── Glass Surfaces ─────────────────────────────────────────────────────── */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .glass:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border-accent);
+  background: var(--bg-card-hover);
+  border-color: rgba(255,255,255,0.10);
 }
 
 .glass-accent {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-accent);
-  border-radius: 16px;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .glass-accent:hover {
-  background: rgba(255, 71, 87, 0.06);
+  background: var(--accent-dim);
   border-color: var(--accent);
 }
 
+/* Inset card — slightly elevated */
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.card-accent {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg);
+}
+
+/* ─── Glow Effects ───────────────────────────────────────────────────────── */
 .glow-accent {
-  box-shadow: 
-    0 0 20px var(--accent-glow),
-    0 0 40px rgba(255, 71, 87, 0.1),
-    inset 0 0 20px rgba(255, 71, 87, 0.05);
+  box-shadow:
+    0 0 0 1px var(--accent-border),
+    0 0 18px var(--accent-glow),
+    0 0 40px rgba(124,92,252,0.12);
 }
-
+.glow-sm {
+  box-shadow: 0 0 12px var(--accent-glow);
+}
 .glow-secondary {
-  box-shadow: 
-    0 0 20px rgba(0, 212, 255, 0.2),
-    0 0 40px rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 18px rgba(34,211,238,0.25), 0 0 36px rgba(34,211,238,0.10);
 }
 
+/* ─── Gradient Utilities ─────────────────────────────────────────────────── */
+.gradient-brand {
+  background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 50%, var(--accent2) 100%);
+}
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-subtle {
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-secondary) 100%);
+}
+
+/* ─── Chip / Badge ───────────────────────────────────────────────────────── */
+.chip-win  { background: var(--win-dim);  color: var(--win);  border: 1px solid rgba(52,211,153,0.25); }
+.chip-loss { background: var(--loss-dim); color: var(--loss); border: 1px solid rgba(248,113,113,0.25); }
+.chip-draw { background: var(--draw-dim); color: var(--draw); border: 1px solid rgba(251,191,36,0.25); }
+
+/* ─── Skeleton Shimmer ───────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(255, 71, 87, 0.1); }
-  50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(255, 71, 87, 0.15); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.04) 50%, var(--bg-secondary) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    rgba(255,255,255,0.045) 50%,
+    var(--bg-elevated) 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 8px;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
 }
 
-.glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
+/* ─── Misc Animations ────────────────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 18px var(--accent-glow), 0 0 36px rgba(124,92,252,0.10); }
+  50%       { box-shadow: 0 0 28px var(--accent-glow), 0 0 56px rgba(124,92,252,0.18); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.float {
-  animation: float 3s ease-in-out infinite;
+.glow-pulse  { animation: glow-pulse 2.4s ease-in-out infinite; }
+.float       { animation: float 3.2s ease-in-out infinite; }
+.fade-in-up  { animation: fade-in-up 0.4s ease forwards; }
+
+/* ─── Stat bar (for win rate / HS bars) ──────────────────────────────────── */
+.stat-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-bright) 100%);
+  transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
 }
 
-.gradient-bg {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%);
-  background-size: 200% 200%;
-  animation: gradient-shift 6s ease infinite;
-}
-
-.chip-win { background: rgba(74,222,128,0.15); color: var(--win); border: 1px solid rgba(74,222,128,0.25); }
-.chip-loss { background: rgba(248,113,113,0.15); color: var(--loss); border: 1px solid rgba(248,113,113,0.25); }
-.chip-draw { background: rgba(250,204,21,0.15); color: var(--draw); border: 1px solid rgba(250,204,21,0.25); }
-
-*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ─── Mobile touch improvements ──────────────────────────────────────────── */
+button, [role="button"] { cursor: pointer; }
+img { max-width: 100%; }

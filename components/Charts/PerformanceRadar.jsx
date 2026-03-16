@@ -32,8 +32,8 @@ export default function PerformanceRadar({ stats, rankTier = 'Gold' }) {
         <RadarChart data={data} margin={{ top: 8, right: 24, bottom: 8, left: 24 }}>
           <PolarGrid stroke='var(--border)' />
           <PolarAngleAxis dataKey='metric' tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
-          <Radar name='You' dataKey='player' stroke='#ff4655' fill='#ff4655' fillOpacity={0.2} animationDuration={800} />
-          <Radar name={rankTier + ' avg'} dataKey='avg' stroke='#4fc3f7' fill='#4fc3f7' fillOpacity={0.1} />
+          <Radar name='You' dataKey='player' stroke='#7c5cfc' fill='#7c5cfc' fillOpacity={0.2} animationDuration={800} />
+          <Radar name={rankTier + ' avg'} dataKey='avg' stroke='#22d3ee' fill='#22d3ee' fillOpacity={0.1} />
           <Tooltip formatter={(v, n) => [v + '/100', n]} contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', borderRadius: '8px', fontSize: '11px' }} />
           <Legend formatter={v => <span className='text-xs text-[var(--text-secondary)]'>{v}</span>} />
         </RadarChart>

@@ -39,7 +39,7 @@ export default function AgentWinRateBar({ agentStats }) {
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--accent-dim)' }} />
           <Bar dataKey='winRate' radius={[0, 6, 6, 0]} animationDuration={800}>
             {data.map((d, i) => (
-              <Cell key={i} fill={d.winRate >= 50 ? '#4ade80' : '#ff4655'} fillOpacity={0.85} />
+              <Cell key={i} fill={d.winRate >= 50 ? '#34d399' : '#f87171'} fillOpacity={0.85} />
             ))}
           </Bar>
         </BarChart>

@@ -13,10 +13,10 @@ export default function Dashboard({ account, region, matchStats, loading }) {
   const topAgent = agentStats[0];
 
   const cards = [
-    { label: 'Win Rate', value: stats.gamesPlayed > 0 ? parseFloat(stats.winRate.toFixed(1)) : 0, suffix: '%', sub: stats.wins + 'W / ' + (stats.gamesPlayed - stats.wins) + 'L across ' + stats.gamesPlayed + ' games', icon: TrendingUp, color: '#4ade80', delay: 0.1 },
-    { label: 'K/D Ratio', value: stats.kd, sub: stats.kills + 'K ' + stats.deaths + 'D ' + stats.assists + 'A', icon: Crosshair, color: '#ff4655', delay: 0.15 },
-    { label: 'Avg ACS', value: stats.acs, sub: 'Average combat score', icon: Zap, color: '#f0b429', delay: 0.2 },
-    { label: 'HS%', value: parseFloat(stats.hsPct.toFixed(1)), suffix: '%', sub: 'Headshot percentage', icon: Target, color: '#4fc3f7', delay: 0.25 },
+    { label: 'Win Rate', value: stats.gamesPlayed > 0 ? parseFloat(stats.winRate.toFixed(1)) : 0, suffix: '%', sub: stats.wins + 'W / ' + (stats.gamesPlayed - stats.wins) + 'L across ' + stats.gamesPlayed + ' games', icon: TrendingUp, color: '#34d399', delay: 0.1 },
+    { label: 'K/D Ratio', value: stats.kd, sub: stats.kills + 'K ' + stats.deaths + 'D ' + stats.assists + 'A', icon: Crosshair, color: '#7c5cfc', delay: 0.15 },
+    { label: 'Avg ACS', value: stats.acs, sub: 'Average combat score', icon: Zap, color: '#22d3ee', delay: 0.2 },
+    { label: 'HS%', value: parseFloat(stats.hsPct.toFixed(1)), suffix: '%', sub: 'Headshot percentage', icon: Target, color: '#f59e0b', delay: 0.25 },
   ];
 
   return (

@@ -2,7 +2,7 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 
-const COLORS = ['#ff4655','#4ade80','#4fc3f7','#f0b429','#9c27b0','#ef5350','#ffe082','#a8734e'];
+const COLORS = ['#7c5cfc','#22d3ee','#34d399','#f59e0b','#a78bfa','#f472b6','#60a5fa','#4ade80'];
 
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;

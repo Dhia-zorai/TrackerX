@@ -37,13 +37,13 @@ export default function AcsLineChart({ matchStats }) {
           <YAxis tickLine={false} axisLine={false} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine y={avg} stroke='var(--accent)' strokeDasharray='4 4' strokeOpacity={0.5} />
-          <Line type='monotone' dataKey='acs' stroke='#ff4655' strokeWidth={2}
+          <Line type='monotone' dataKey='acs' stroke='#7c5cfc' strokeWidth={2}
             dot={d => (
               <circle key={d.index} cx={d.cx} cy={d.cy} r={3}
-                fill={d.payload.won ? '#4ade80' : '#f87171'}
+                fill={d.payload.won ? '#34d399' : '#f87171'}
                 stroke='none' />
             )}
-            activeDot={{ r: 5, fill: '#ff4655' }}
+            activeDot={{ r: 5, fill: '#7c5cfc' }}
             animationDuration={800} />
         </LineChart>
       </ResponsiveContainer>

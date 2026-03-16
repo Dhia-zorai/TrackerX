@@ -1,5 +1,5 @@
 "use client";
-import { use, useMemo } from "react";
+import { use, useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -10,12 +10,12 @@ import { useMMR } from "@/hooks/useMMR";
 import Dashboard from "@/components/Dashboard";
 import MatchHistory from "@/components/MatchHistory";
 import ShareCard from "@/components/ShareCard";
+import Toast from "@/components/ui/Toast";
 import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar } from "@/components/Charts";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
 import { exportJSON, exportMatchCSV } from "@/lib/exportData";
-import { generateMetadata } from "./metadata";
 
 export default function PlayerPage({ params }) {
   const resolvedParams = use(params);
@@ -33,10 +33,29 @@ export default function PlayerPage({ params }) {
 
   const loading = matchListLoading || matchDetailsLoading;
 
+  // Toast — fire once when first batch of matches loads
+  const [showToast, setShowToast] = useState(false);
+  const toastShown = useRef(false);
+  useEffect(() => {
+    if (!loading && matches.length > 0 && !toastShown.current) {
+      toastShown.current = true;
+      setShowToast(true);
+    }
+  }, [loading, matches.length]);
+
+  // Match type filter
+  const [filterMode, setFilterMode] = useState('all');
+  const filteredMatches = useMemo(() => {
+    if (filterMode === 'all') return matches;
+    return matches.filter(m =>
+      (m.info?.gameMode || m.queue || '').toLowerCase() === filterMode
+    );
+  }, [matches, filterMode]);
+
   const matchStats = useMemo(() => {
-    if (!account?.puuid || !matches) return [];
-    return matches.map(m => extractPlayerStats(m, account.puuid)).filter(Boolean);
-  }, [matches, account?.puuid]);
+    if (!account?.puuid || !filteredMatches) return [];
+    return filteredMatches.map(m => extractPlayerStats(m, account.puuid)).filter(Boolean);
+  }, [filteredMatches, account?.puuid]);
 
   const aggregated = useMemo(() => aggregateStats(matchStats), [matchStats]);
   const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
@@ -56,7 +75,7 @@ export default function PlayerPage({ params }) {
 
   if (accountError) {
     return (
-      <main className='min-h-screen px-4 py-12 max-w-3xl mx-auto'>
+      <main className='min-h-screen w-full px-4 py-12 max-w-3xl mx-auto'>
         <Link href='/' className='flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-8 transition-colors'>
           <ArrowLeft size={14} /> Back to search
         </Link>
@@ -66,7 +85,7 @@ export default function PlayerPage({ params }) {
   }
 
   return (
-    <main className='min-h-screen px-4 py-8 max-w-5xl mx-auto'>
+    <main className='min-h-screen w-full px-4 py-8 max-w-5xl mx-auto'>
       {/* Navbar */}
       <div className='flex items-center justify-between mb-8'>
         <Link href='/' className='flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'>
@@ -119,25 +138,47 @@ export default function PlayerPage({ params }) {
           )}
 
           {/* Match History */}
-          <MatchHistory
-            puuid={account?.puuid}
-            matches={matches}
-            loading={loading}
-            error={matchListError}
-            hasMore={hasMore}
-            loadMore={loadMore}
-            onRefresh={refetch}
-          />
+          <div className='space-y-3'>
+            {/* Filter pills */}
+            <div className='flex items-center gap-2'>
+              {['all', 'competitive'].map(mode => (
+                <button key={mode} onClick={() => setFilterMode(mode)}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                    filterMode === mode
+                      ? 'bg-[var(--accent)] text-white'
+                      : 'glass text-[var(--text-secondary)] hover:text-[var(--accent)]'
+                  }`}>
+                  {mode === 'all' ? 'All Modes' : 'Competitive'}
+                </button>
+              ))}
+            </div>
+            <MatchHistory
+              puuid={account?.puuid}
+              matches={filteredMatches}
+              loading={loading}
+              error={matchListError}
+              hasMore={hasMore}
+              loadMore={loadMore}
+              onRefresh={refetch}
+            />
+          </div>
 
           {/* Share Card */}
           {matchStats.length > 0 && (
             <div className='space-y-3'>
               <h2 className='text-lg font-bold text-[var(--text-primary)]'>Share Stats</h2>
-              <ShareCard account={account} stats={aggregated} />
+              <ShareCard account={account} stats={aggregated} agentStats={agentStats} />
             </div>
           )}
         </motion.div>
       )}
+
+      {/* Toast */}
+      <Toast
+        visible={showToast}
+        message="Stats are calculated from the matches currently loaded. Loading more matches will improve accuracy."
+        onDismiss={() => setShowToast(false)}
+      />
     </main>
   );
 }
