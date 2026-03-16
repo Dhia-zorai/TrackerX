@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { extractPlayerStats, timeAgo, formatRatio } from "@/lib/utils";
+import { extractPlayerStats, timeAgo, formatRatio, capitalizeAgent } from "@/lib/utils";
 
 function ResultChip({ won, drew }) {
   if (drew) return <span className="chip-draw text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">DRAW</span>;
@@ -82,12 +82,12 @@ export default function MatchCard({ match, puuid }) {
     >
       {/* Main row */}
       <div
-        className='flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
+        className='flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
         onClick={() => setExpanded(e => !e)}
       >
         {/* Map block */}
         <div
-          className='w-[52px] h-[52px] rounded-lg flex flex-col items-center justify-center shrink-0 border border-[var(--border)]'
+          className='w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-lg flex flex-col items-center justify-center shrink-0 border border-[var(--border)]'
           style={{ background: accentBg }}
         >
           <span className='text-[7px] font-semibold text-[var(--text-muted)] uppercase tracking-widest leading-none'>MAP</span>
@@ -102,7 +102,7 @@ export default function MatchCard({ match, puuid }) {
             <span className='text-xs text-[var(--text-secondary)] capitalize'>{gameMode}</span>
           </div>
           <div className='flex items-center gap-2 text-xs'>
-            <span className='font-semibold text-[var(--text-primary)] capitalize'>{playerStats.agentId || 'Unknown'}</span>
+            <span className='font-semibold text-[var(--text-primary)]'>{capitalizeAgent(playerStats.agentId) || 'Unknown'}</span>
             <span className='text-[var(--text-muted)]'>·</span>
             <span className='text-[var(--text-secondary)]'>{timeAgo(timestamp)}</span>
           </div>
@@ -113,12 +113,12 @@ export default function MatchCard({ match, puuid }) {
           <p className='text-sm font-bold text-[var(--text-primary)] tabular-nums'>
             {playerStats.kills}/{playerStats.deaths}/{playerStats.assists}
           </p>
-          <p className='text-xs text-[var(--text-secondary)] tabular-nums'>
+          <p className='hidden sm:block text-xs text-[var(--text-secondary)] tabular-nums'>
             <span className='text-[var(--text-primary)] font-medium'>{formatRatio(playerStats.kd)}</span> KD
             &nbsp;·&nbsp;
             <span className='text-[var(--text-primary)] font-medium'>{playerStats.acs}</span> ACS
           </p>
-          <div className='flex items-center justify-end gap-1.5'>
+          <div className='hidden sm:flex items-center justify-end gap-1.5'>
             <span className='text-[10px] text-[var(--text-secondary)]'>{playerStats.hsPct.toFixed(0)}% HS</span>
             <HsBar pct={playerStats.hsPct} />
           </div>

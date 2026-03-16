@@ -115,11 +115,11 @@ export default function PlayerBanner({ account, region }) {
       {/* Gradient sweep */}
       <div className='absolute inset-0 bg-gradient-to-r from-[var(--accent-dim)] via-transparent to-transparent pointer-events-none' />
 
-      <div className='relative flex items-center gap-5'>
+      <div className='relative flex items-center gap-3 sm:gap-5'>
         {/* Avatar — always initials-based gradient, no broken image fallback */}
         <div className='relative shrink-0'>
           <div
-            className='w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl select-none relative overflow-hidden'
+            className='w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white font-bold text-xl select-none relative overflow-hidden'
             style={{
               background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`,
               boxShadow: `0 0 24px ${gradient.from}55`,
@@ -141,7 +141,7 @@ export default function PlayerBanner({ account, region }) {
         {/* Name + region */}
         <div className='flex-1 min-w-0'>
           <div className='flex items-center gap-2 flex-wrap'>
-            <h1 className='text-2xl font-bold text-[var(--text-primary)] truncate'>{gameName}</h1>
+            <h1 className='text-xl sm:text-2xl font-bold text-[var(--text-primary)] truncate'>{gameName}</h1>
             <span className='text-[var(--text-secondary)] text-lg font-normal'>#{tagLine}</span>
           </div>
           <div className='flex items-center gap-3 mt-1 text-xs text-[var(--text-secondary)]'>

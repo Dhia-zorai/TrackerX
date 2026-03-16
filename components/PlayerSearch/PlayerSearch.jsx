@@ -62,9 +62,9 @@ export default function PlayerSearch({ compact = false }) {
     if (e.key === "Escape") setShowDropdown(false);
   }
 
-  const outerCls = "flex items-center gap-2 glass-accent rounded-xl p-1 transition-all duration-200 focus-within:border-[var(--accent)] " + (compact ? "h-10" : "h-14");
+  const outerCls = "flex items-center gap-1.5 sm:gap-2 glass-accent rounded-xl p-1 transition-all duration-200 focus-within:border-[var(--accent)] " + (compact ? "h-10" : "h-14");
   const inputCls = "flex-1 bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] " + (compact ? "text-sm" : "text-base");
-  const btnCls = "px-4 py-2 rounded-lg font-semibold text-sm bg-[var(--accent)] text-white hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 " + (compact ? "px-3 text-xs" : "");
+  const btnCls = "shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm bg-[var(--accent)] text-white hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 " + (compact ? "text-xs" : "");
 
   return (
     <div className="relative w-full max-w-2xl" ref={dropdownRef}>
@@ -96,7 +96,7 @@ export default function PlayerSearch({ compact = false }) {
         {/* Input */}
         <div className="flex-1 flex items-center gap-2">
           <Search size={16} className="text-[var(--text-secondary)] shrink-0" />
-          <input ref={inputRef} type="text" placeholder="Search Riot ID (e.g. TenZ#NA1)" value={input}
+          <input ref={inputRef} type="text" placeholder="Name#TAG (e.g. TenZ#NA1)" value={input}
             onChange={e => { setInput(e.target.value); setError(""); }}
             onFocus={() => setShowDropdown(true)} onKeyDown={handleKeyDown}
             className={inputCls} />

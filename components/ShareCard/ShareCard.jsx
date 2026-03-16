@@ -35,15 +35,19 @@ export default function ShareCard({ account, stats, agentStats }) {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='space-y-3'>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='w-full space-y-3'>
       {/* Exportable card */}
+      <div className='w-full overflow-x-auto'>
       <div ref={cardRef} style={{
         fontFamily: 'Inter, sans-serif',
         background: '#0f1923',
         padding: '32px',
         borderRadius: '16px',
         border: '1px solid rgba(255,70,85,0.3)',
-        width: '380px',
+        width: '100%',
+        maxWidth: '380px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
@@ -120,6 +124,7 @@ export default function ShareCard({ account, stats, agentStats }) {
         <p style={{ color: '#8899aa', fontSize: '10px', textAlign: 'center', margin: '16px 0 0' }}>
           trackerx.app &bull; {stats.gamesPlayed} games analyzed
         </p>
+      </div>
       </div>
 
       <button onClick={handleExport}
