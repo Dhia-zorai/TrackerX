@@ -2,22 +2,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { extractPlayerStats, timeAgo, formatRatio, capitalizeAgent } from "@/lib/utils";
+import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
 
 function ResultChip({ won, drew }) {
   if (drew) return <span className="chip-draw text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">DRAW</span>;
   if (won)  return <span className="chip-win  text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">WIN</span>;
   return          <span className="chip-loss text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">LOSS</span>;
-}
-
-// Thin HS% progress bar
-function HsBar({ pct }) {
-  const clamped = Math.min(Math.max(pct, 0), 100);
-  return (
-    <div className="stat-bar-track w-14">
-      <div className="stat-bar-fill" style={{ width: clamped + '%' }} />
-    </div>
-  );
 }
 
 function ScoreboardRow({ player, isHighlighted }) {
@@ -82,46 +72,53 @@ export default function MatchCard({ match, puuid }) {
     >
       {/* Main row */}
       <div
-        className='flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
+        className='flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
         onClick={() => setExpanded(e => !e)}
       >
         {/* Map block */}
         <div
-          className='w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-lg flex flex-col items-center justify-center shrink-0 border border-[var(--border)]'
+          className='w-11 h-11 rounded-lg flex flex-col items-center justify-center shrink-0 border border-[var(--border)] self-center'
           style={{ background: accentBg }}
         >
           <span className='text-[7px] font-semibold text-[var(--text-muted)] uppercase tracking-widest leading-none'>MAP</span>
-          <span className='text-[11px] font-bold text-[var(--text-primary)] capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
+          <span className='text-[10px] font-bold text-[var(--text-primary)] capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
         </div>
 
-        {/* Left: result + meta */}
-        <div className='flex-1 min-w-0 space-y-1'>
-          <div className='flex items-center gap-2'>
+        {/* Middle: two stacked rows */}
+        <div className='flex-1 min-w-0 flex flex-col justify-center gap-1.5'>
+          {/* Row 1: result chip + agent + mode */}
+          <div className='flex items-center gap-2 min-w-0'>
             <ResultChip won={playerStats.won} drew={playerStats.drew} />
-            {score && <span className='text-xs font-semibold text-[var(--text-primary)] tabular-nums'>{score}</span>}
-            <span className='text-xs text-[var(--text-secondary)] capitalize'>{gameMode}</span>
+            <span className='text-xs font-semibold text-[var(--text-primary)] truncate'>
+              {capitalizeAgent(playerStats.agentId) || 'Unknown'}
+            </span>
+            <span className='text-xs text-[var(--text-secondary)] capitalize truncate hidden xs:inline'>
+              {gameMode}
+            </span>
           </div>
-          <div className='flex items-center gap-2 text-xs'>
-            <span className='font-semibold text-[var(--text-primary)]'>{capitalizeAgent(playerStats.agentId) || 'Unknown'}</span>
-            <span className='text-[var(--text-muted)]'>·</span>
-            <span className='text-[var(--text-secondary)]'>{timeAgo(timestamp)}</span>
+          {/* Row 2: score + time */}
+          <div className='flex items-center gap-1.5 text-xs text-[var(--text-secondary)] min-w-0'>
+            {score && (
+              <>
+                <span className='tabular-nums font-medium text-[var(--text-primary)]'>{score}</span>
+                <span className='text-[var(--text-muted)]'>·</span>
+              </>
+            )}
+            <span className='truncate'>{timeAgo(timestamp)}</span>
           </div>
         </div>
 
-        {/* Right: stats */}
-        <div className='shrink-0 text-right space-y-1'>
-          <p className='text-sm font-bold text-[var(--text-primary)] tabular-nums'>
+        {/* Right: stats column — fixed width, always visible */}
+        <div className='shrink-0 flex flex-col items-end justify-center gap-1 w-[72px] text-right'>
+          <p className='text-sm font-bold text-[var(--text-primary)] tabular-nums leading-none'>
             {playerStats.kills}/{playerStats.deaths}/{playerStats.assists}
           </p>
-          <p className='hidden sm:block text-xs text-[var(--text-secondary)] tabular-nums'>
-            <span className='text-[var(--text-primary)] font-medium'>{formatRatio(playerStats.kd)}</span> KD
-            &nbsp;·&nbsp;
+          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none'>
             <span className='text-[var(--text-primary)] font-medium'>{playerStats.acs}</span> ACS
           </p>
-          <div className='hidden sm:flex items-center justify-end gap-1.5'>
-            <span className='text-[10px] text-[var(--text-secondary)]'>{playerStats.hsPct.toFixed(0)}% HS</span>
-            <HsBar pct={playerStats.hsPct} />
-          </div>
+          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none'>
+            <span className='text-[var(--text-primary)] font-medium'>{playerStats.hsPct.toFixed(0)}%</span> HS
+          </p>
         </div>
 
         <ChevronDown
