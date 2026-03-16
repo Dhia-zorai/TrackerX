@@ -1,129 +1,115 @@
-# TrackerX
+TrackerX
 
-A production-quality Valorant stats tracker built with Next.js, Tailwind CSS, and the Riot Games API. Search any player by Riot ID, view match history, performance charts, agent breakdowns, and export stats — all in a clean dark/light UI.
+TrackerX is a production ready Valorant stats tracker built with Next.js and Tailwind CSS. Search any player by Riot ID, view match history, performance charts, agent breakdowns, and export stats. The interface supports dark and light modes and is fully responsive.
 
-## Features
+Features
 
-- **Player Search** — Look up any player by `Name#TAG` with NA/EU region support
-- **Dashboard** — K/D, ACS, win rate, headshot %, and top agent at a glance
-- **Match History** — Last 20 matches with expandable scoreboards and load more
-- **Performance Charts** — ACS over time, agent usage pie, win rate by agent, performance radar
-- **Leaderboard Widget** — Top 10 ranked players per region
-- **Export** — Download stats as JSON or match history as CSV
-- **Share Card** — Export a shareable PNG stat card via html-to-image
-- **Theme Toggle** — Dark (default) and light mode, persisted to localStorage
+Player Search: look up any player by Name#TAG with NA or EU region support
 
-## Tech Stack
+Dashboard: K/D, ACS, win rate, headshot percentage, top agent at a glance
 
-| Layer | Library |
-|---|---|
-| Framework | Next.js 16 (App Router + Pages API routes) |
-| Styling | Tailwind CSS v4 |
-| Animation | Framer Motion |
-| Data fetching | TanStack React Query (5 min stale time) |
-| State | Zustand (persisted: theme, region, recent searches) |
-| Charts | Recharts |
-| Icons | Lucide React |
-| CSV export | PapaParse |
-| PNG export | html-to-image |
+Match History: last 20 matches with expandable scoreboards and load more
 
-## Getting Started
+Performance Charts: ACS over time, agent usage, win rate by agent, performance radar
 
-### 1. Clone and install
+Leaderboard Widget: top 10 ranked players per region
 
-```bash
-git clone <your-repo-url>
-cd trackerx
+Export: download stats as JSON or CSV
+
+Share Card: generate a PNG stat card for sharing
+
+Theme Toggle: dark and light mode persisted to localStorage
+
+Responsive Design: desktop first with mobile friendly layout
+
+Tech Stack
+Layer Library or Tool
+Framework Next.js 16 (App Router and API Routes)
+Styling Tailwind CSS v4
+Animation Framer Motion
+Data Fetching TanStack React Query (5 minute stale time)
+State Zustand (persisted theme, region, recent searches)
+Charts Recharts
+Icons Lucide React
+CSV Export PapaParse
+PNG Export html-to-image
+Getting Started
+
+Clone the repository and install dependencies
+
+git clone https://github.com/USERNAME/TrackerX.git
+cd TrackerX
 npm install
-```
 
-### 2. Set up your Riot API key
+Set up environment variables by copying the example file
 
-Copy the example env file and add your key:
-
-```bash
 cp .env.local.example .env.local
-```
 
-Then edit `.env.local`:
+Edit .env.local with your Riot API key or your hosted API URL if using a proxy
 
-```env
 RIOT_API_KEY=RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
 
-Get a development key at https://developer.riotgames.com. Note: development keys expire every 24 hours. For production use, apply for a personal or production key.
+# or
 
-### 3. Run the development server
+RIOT_API_URL=https://your-api-host.vercel.app/api/riot
 
-```bash
+Run the development server
+
 npm run dev
-```
 
-Open http://localhost:3000 in your browser.
+Open http://localhost:3000
+in your browser.
 
-## API Routes
+Deployment on Vercel
 
-All Riot API calls are proxied through Next.js API routes — your key never reaches the browser.
+Push the repository to GitHub
 
-| Route | Purpose |
-|---|---|
-| `GET /api/riot/account?gameName=&tagLine=&region=` | Resolve Riot ID to PUUID |
-| `GET /api/riot/matches?puuid=&region=&count=` | Fetch match ID list |
-| `GET /api/riot/match?matchId=&region=` | Fetch full match details |
-| `GET /api/riot/leaderboard?actId=&region=&size=` | Top ranked players |
+Import the repository at vercel.com
 
-Responses are cached in-memory (5 min TTL) to avoid hitting rate limits.
+Add RIOT_API_KEY or RIOT_API_URL as an environment variable in the Vercel project settings
 
-## Deployment (Vercel)
+Deploy. The API key is only used server side and is never exposed to the client
 
-1. Push to GitHub
-2. Import the repo at vercel.com
-3. Add `RIOT_API_KEY` as an Environment Variable in the Vercel project settings
-4. Deploy
-
-The `RIOT_API_KEY` variable is only read server-side (`pages/api/riot/*`) and is never exposed to the client bundle.
-
-## Notes on Rank Data
-
-The official Riot Games API does not expose rank/RR for arbitrary players without RSO (Riot Sign-On) OAuth. The rank card in the player banner displays a placeholder with a **Requires RSO** note. All other stats (kills, deaths, ACS, win rate, etc.) are derived from match data and are fully accurate.
-
-## Project Structure
-
-```
+Project Structure
 app/
-  globals.css           # Valorant theme, CSS variables, glass/skeleton utilities
-  layout.js             # Providers (Query, Theme), Inter font
-  page.js               # Home — search bar + feature grid
-  player/[riotId]/
-    page.js             # Full player dashboard
+globals.css
+layout.js
+page.js
+player/[riotId]/page.js
 
 components/
-  PlayerSearch/         # Search bar with region selector + recent searches
-  Dashboard/            # Stat cards grid + player banner
-  MatchHistory/         # Match list, expandable scoreboards
-  Charts/               # ACS line, agent pie, win rate bar, performance radar
-  StatCard/             # Animated number counter card
-  Leaderboard/          # Top 10 per region with act switcher
-  ShareCard/            # html-to-image PNG export card
-  ui/                   # Skeleton, ErrorState, ThemeToggle
+PlayerSearch/
+Dashboard/
+MatchHistory/
+Charts/
+StatCard/
+Leaderboard/
+ShareCard/
+ui/
 
 lib/
-  riotApi.js            # Riot API client with exponential backoff on 429
-  cache.js              # In-memory TTL cache
-  utils.js              # parseRiotId, extractPlayerStats, aggregateStats, getAgentStats
-  exportData.js         # exportJSON, exportCSV, exportMatchCSV
+riotApi.js
+cache.js
+utils.js
+exportData.js
 
 hooks/
-  usePlayer.js          # React Query: account lookup
-  useMatches.js         # React Query: match list + batched detail fetch
-  useRankHistory.js     # ACS trend from match stats (rank proxy, no RSO)
+usePlayer.js
+useMatches.js
+useRankHistory.js
 
 store/
-  playerStore.js        # Zustand: recentSearches, region, theme (persisted)
+playerStore.js
+Notes
 
-pages/api/riot/
-  account.js            # Riot account-v1
-  matches.js            # val-match-v1 matchlist
-  match.js              # val-match-v1 match detail
-  leaderboard.js        # val-ranked-v1 leaderboard
-```
+Fully responsive, mobile friendly, and works on desktop
+
+All stats and charts are derived from match history
+
+Dark and light mode is persisted across sessions
+
+API keys are only used server side
+
+License
+
+MIT
