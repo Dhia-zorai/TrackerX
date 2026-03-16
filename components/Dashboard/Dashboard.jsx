@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Crosshair, Target, TrendingUp, Zap, User } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import PlayerBanner from "./PlayerBanner";
-import { aggregateStats, getAgentStats } from "@/lib/utils";
+import { aggregateStats, getAgentStats, capitalizeAgent } from "@/lib/utils";
 import { StatCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function Dashboard({ account, region, matchStats, loading }) {
@@ -36,7 +36,7 @@ export default function Dashboard({ account, region, matchStats, loading }) {
           </div>
           <div className='flex-1'>
             <p className='text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1'>Most Played Agent</p>
-            <p className='text-xl font-bold text-[var(--text-primary)] capitalize'>{topAgent.agentId}</p>
+            <p className='text-xl font-bold text-[var(--text-primary)]'>{capitalizeAgent(topAgent.agentId)}</p>
             <p className='text-xs text-[var(--text-secondary)] mt-0.5'>{topAgent.games} games &middot; {topAgent.winRate}% WR &middot; {topAgent.kd} K/D</p>
           </div>
           <div className='text-right'>

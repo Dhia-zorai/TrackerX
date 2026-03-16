@@ -37,41 +37,62 @@ function RankBadge({ mmr, loading }) {
     );
   }
 
-  if (!mmr || mmr.tierName === "Unranked" || mmr.tier == null) {
+  const isRanked = mmr && mmr.tier != null && mmr.tier > 0 && mmr.tierName !== "Unranked";
+
+  // Ranked — show current rank, RR, and ±change
+  if (isRanked) {
+    const tierBase = (mmr.tierName || "").replace(/\s+\d+$/, "").trim();
+    const rankInfo = RANK_TIERS.find(t => t.name.toLowerCase() === tierBase.toLowerCase());
+    const color = rankInfo?.color || "var(--accent)";
+    const imgSrc = mmr.images?.small || null;
+
     return (
-      <div className='glass rounded-xl px-4 py-3 flex flex-col items-center gap-1'>
-        <Shield size={20} className='text-[var(--text-secondary)]' />
-        <span className='text-xs font-medium text-[var(--text-secondary)]'>Unranked</span>
+      <div className='glass rounded-xl px-4 py-3 flex flex-col items-center gap-1 min-w-[88px]'>
+        {imgSrc ? (
+          <img src={imgSrc} alt={mmr.tierName} className='w-8 h-8 object-contain' />
+        ) : (
+          <Shield size={20} style={{ color }} />
+        )}
+        <span className='text-xs font-bold' style={{ color }}>{mmr.tierName}</span>
+        <span className='text-xs text-[var(--text-secondary)] tabular-nums'>{mmr.rr} RR</span>
+        {mmr.mmrChange != null && (
+          <span className={
+            'text-[10px] font-medium tabular-nums ' +
+            (mmr.mmrChange >= 0 ? 'text-green-400' : 'text-red-400')
+          }>
+            {mmr.mmrChange >= 0 ? '+' : ''}{mmr.mmrChange}
+          </span>
+        )}
       </div>
     );
   }
 
-  // Find accent color for rank tier
-  const tierBase = (mmr.tierName || "").replace(/\s+\d+$/, "").trim(); // "Gold 2" -> "Gold"
-  const rankInfo = RANK_TIERS.find(t => t.name.toLowerCase() === tierBase.toLowerCase());
-  const color = rankInfo?.color || "var(--accent)";
+  // Unranked but has an all-time peak — show that instead
+  if (mmr?.peakTier) {
+    const peakBase = mmr.peakTier.replace(/\s+\d+$/, "").trim();
+    const rankInfo = RANK_TIERS.find(t => t.name.toLowerCase() === peakBase.toLowerCase());
+    const color = rankInfo?.color || "var(--text-secondary)";
+    // Henrik includes a rank image on the highest_rank object — fall back to Shield if absent
+    const imgSrc = mmr.images?.small || null;
 
-  const imgSrc = mmr.images?.small || null;
+    return (
+      <div className='glass rounded-xl px-4 py-3 flex flex-col items-center gap-1 min-w-[88px]' style={{ opacity: 0.75 }}>
+        {imgSrc ? (
+          <img src={imgSrc} alt={mmr.peakTier} className='w-8 h-8 object-contain' style={{ filter: 'grayscale(30%)' }} />
+        ) : (
+          <Shield size={20} style={{ color }} />
+        )}
+        <span className='text-xs font-bold' style={{ color }}>{mmr.peakTier}</span>
+        <span className='text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-medium'>Peak</span>
+        {mmr.peakSeason && (
+          <span className='text-[10px] text-[var(--text-secondary)] opacity-60'>{mmr.peakSeason}</span>
+        )}
+      </div>
+    );
+  }
 
-  return (
-    <div className='glass rounded-xl px-4 py-3 flex flex-col items-center gap-1 min-w-[88px]'>
-      {imgSrc ? (
-        <img src={imgSrc} alt={mmr.tierName} className='w-8 h-8 object-contain' />
-      ) : (
-        <Shield size={20} style={{ color }} />
-      )}
-      <span className='text-xs font-bold' style={{ color }}>{mmr.tierName}</span>
-      <span className='text-xs text-[var(--text-secondary)] tabular-nums'>{mmr.rr} RR</span>
-      {mmr.mmrChange != null && (
-        <span className={
-          'text-[10px] font-medium tabular-nums ' +
-          (mmr.mmrChange >= 0 ? 'text-green-400' : 'text-red-400')
-        }>
-          {mmr.mmrChange >= 0 ? '+' : ''}{mmr.mmrChange}
-        </span>
-      )}
-    </div>
-  );
+  // No rank data at all — hide the badge entirely
+  return null;
 }
 
 export default function PlayerBanner({ account, region }) {
@@ -128,12 +149,6 @@ export default function PlayerBanner({ account, region }) {
               <MapPin size={11} />{region}
             </span>
           </div>
-          {mmr?.peakTier && (
-            <p className='text-xs text-[var(--text-secondary)] mt-1.5 opacity-70'>
-              Peak: <span className='font-semibold text-[var(--text-primary)]'>{mmr.peakTier}</span>
-              {mmr.peakSeason ? <span className='opacity-60'> · {mmr.peakSeason}</span> : ''}
-            </p>
-          )}
         </div>
 
         {/* Rank badge */}
