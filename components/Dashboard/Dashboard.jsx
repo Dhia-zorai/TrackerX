@@ -1,0 +1,50 @@
+"use client";
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import { Crosshair, Target, TrendingUp, Zap, User } from "lucide-react";
+import StatCard from "@/components/StatCard";
+import PlayerBanner from "./PlayerBanner";
+import { aggregateStats, getAgentStats } from "@/lib/utils";
+import { StatCardSkeleton } from "@/components/ui/Skeleton";
+
+export default function Dashboard({ account, region, matchStats, loading }) {
+  const stats = useMemo(() => aggregateStats(matchStats), [matchStats]);
+  const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
+  const topAgent = agentStats[0];
+
+  const cards = [
+    { label: 'Win Rate', value: stats.gamesPlayed > 0 ? parseFloat(stats.winRate.toFixed(1)) : 0, suffix: '%', sub: stats.wins + 'W / ' + (stats.gamesPlayed - stats.wins) + 'L across ' + stats.gamesPlayed + ' games', icon: TrendingUp, color: '#4ade80', delay: 0.1 },
+    { label: 'K/D Ratio', value: stats.kd, sub: stats.kills + 'K ' + stats.deaths + 'D ' + stats.assists + 'A', icon: Crosshair, color: '#ff4655', delay: 0.15 },
+    { label: 'Avg ACS', value: stats.acs, sub: 'Average combat score', icon: Zap, color: '#f0b429', delay: 0.2 },
+    { label: 'HS%', value: parseFloat(stats.hsPct.toFixed(1)), suffix: '%', sub: 'Headshot percentage', icon: Target, color: '#4fc3f7', delay: 0.25 },
+  ];
+
+  return (
+    <div className='space-y-6'>
+      <PlayerBanner account={account} region={region} />
+      <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+        {loading
+          ? [...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)
+          : cards.map(card => <StatCard key={card.label} {...card} />)
+        }
+      </div>
+      {!loading && topAgent && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className='glass-accent rounded-xl p-5 flex items-center gap-5'>
+          <div className='w-12 h-12 bg-[var(--accent-dim)] rounded-xl flex items-center justify-center'>
+            <User size={24} className='text-[var(--accent)]' />
+          </div>
+          <div className='flex-1'>
+            <p className='text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1'>Most Played Agent</p>
+            <p className='text-xl font-bold text-[var(--text-primary)] capitalize'>{topAgent.agentId}</p>
+            <p className='text-xs text-[var(--text-secondary)] mt-0.5'>{topAgent.games} games &middot; {topAgent.winRate}% WR &middot; {topAgent.kd} K/D</p>
+          </div>
+          <div className='text-right'>
+            <p className='text-2xl font-bold text-[var(--text-primary)]'>{topAgent.games}</p>
+            <p className='text-xs text-[var(--text-secondary)]'>games</p>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0f1923;
+  --bg-secondary: #1a2535;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --accent: #ff4655;
+  --accent-dim: rgba(255, 70, 85, 0.15);
+  --accent-glow: rgba(255, 70, 85, 0.3);
+  --text-primary: #ecf0f1;
+  --text-secondary: #8899aa;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(255, 70, 85, 0.2);
+  --win: #4ade80;
+  --loss: #f87171;
+  --draw: #facc15;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(0, 0, 0, 0.03);
+  --accent: #e8304e;
+  --accent-dim: rgba(232, 48, 78, 0.1);
+  --accent-glow: rgba(232, 48, 78, 0.25);
+  --text-primary: #0f1923;
+  --text-secondary: #4a5568;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-accent: rgba(232, 48, 78, 0.2);
+}
+
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.glass-accent {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-accent);
+  border-radius: 12px;
+}
+.glow-accent {
+  box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(255, 70, 85, 0.1);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.06) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.chip-win { background: rgba(74,222,128,0.15); color: var(--win); border: 1px solid rgba(74,222,128,0.25); }
+.chip-loss { background: rgba(248,113,113,0.15); color: var(--loss); border: 1px solid rgba(248,113,113,0.25); }
+.chip-draw { background: rgba(250,204,21,0.15); color: var(--draw); border: 1px solid rgba(250,204,21,0.25); }
+
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
