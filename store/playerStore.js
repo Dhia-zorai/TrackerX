@@ -2,6 +2,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// Detect user's default region based on browser language
+const getDefaultRegion = () => {
+  if (typeof window === "undefined") return "na";
+  const lang = navigator.language || navigator.languages?.[0] || "en-US";
+  // EU languages/locales
+  const euLangs = ["de", "fr", "it", "es", "pt", "nl", "pl", "ru", "tr", "uk", "sv", "da", "fi", "no", "cs", "hu", "ro", "el", "sk"];
+  const langCode = lang.split("-")[0].toLowerCase();
+  return euLangs.includes(langCode) ? "eu" : "na";
+};
+
 export const usePlayerStore = create(
   persist(
     (set, get) => ({
@@ -18,8 +28,8 @@ export const usePlayerStore = create(
       },
       clearRecentSearches: () => set({ recentSearches: [] }),
 
-      // Region
-      region: "na",
+      // Region (defaults to EU if browser language is EU-based)
+      region: getDefaultRegion(),
       setRegion: (region) => set({ region }),
 
       // Theme
