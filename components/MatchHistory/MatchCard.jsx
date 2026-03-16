@@ -31,7 +31,12 @@ export default function MatchCard({ match, puuid }) {
   if (!playerStats) return null;
 
   const info = match.info || {};
-  const mapName = info.mapId ? info.mapId.split('/').pop() : 'Unknown Map';
+  // Handle both official (with /) and Henrik (direct name) formats
+  const mapName = info.mapId 
+    ? info.mapId.includes('/') 
+      ? info.mapId.split('/').pop() 
+      : info.mapId
+    : 'Unknown Map';
   const gameMode = info.gameMode || 'Unrated';
   const timestamp = info.gameStartMillis || 0;
 
