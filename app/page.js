@@ -5,28 +5,51 @@ import { Crosshair, TrendingUp, Users, Shield } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const features = [
-  { icon: TrendingUp, title: "Match History",  desc: "Full K/D/A, ACS, and scoreboard for every game",   color: "var(--accent)" },
-  { icon: Crosshair,  title: "Agent Stats",    desc: "Win rates and performance broken down by agent",    color: "var(--accent2)" },
-  { icon: Users,      title: "Leaderboard",    desc: "Top Radiant players ranked by RR in your region",   color: "#a78bfa" },
-  { icon: Shield,     title: "Rank Tracking",  desc: "Current rank, RR, last-game change, and peak rank", color: "#34d399" },
+  {
+    icon: TrendingUp,
+    title: "Match History",
+    desc: "Full K/D/A, ACS, and scoreboard for every game",
+    color: "var(--accent)",
+  },
+  {
+    icon: Crosshair,
+    title: "Agent Stats",
+    desc: "Win rates and performance broken down by agent",
+    color: "var(--accent2)",
+  },
+  {
+    icon: Users,
+    title: "Leaderboard",
+    desc: "Top Radiant players ranked by RR in your region",
+    color: "#a78bfa",
+  },
+  {
+    icon: Shield,
+    title: "Rank Tracking",
+    desc: "Current rank, RR, last-game change, and peak rank",
+    color: "#34d399",
+  },
 ];
 
 export default function Home() {
   return (
     <main className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">
-
       {/* Grid dot background */}
-      <div className="absolute inset-0 pointer-events-none"
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "radial-gradient(circle, rgba(124,92,252,0.08) 1px, transparent 1px)",
+          backgroundImage:
+            "radial-gradient(circle, rgba(124,92,252,0.08) 1px, transparent 1px)",
           backgroundSize: "32px 32px",
         }}
       />
 
       {/* Central glow blob */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] pointer-events-none"
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse, rgba(124,92,252,0.10) 0%, rgba(34,211,238,0.04) 55%, transparent 75%)",
+          background:
+            "radial-gradient(ellipse, rgba(124,92,252,0.10) 0%, rgba(34,211,238,0.04) 55%, transparent 75%)",
           filter: "blur(40px)",
         }}
       />
@@ -60,12 +83,14 @@ export default function Home() {
         {/* Headline */}
         <div className="space-y-4">
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.08]">
-            <span className="text-[var(--text-primary)]">Your VALORANT stats,</span>
+            <span className="text-[var(--text-primary)]">
+              Your VALORANT stats
+            </span>
             <br />
-            <span className="gradient-text">instant &amp; clean.</span>
           </h1>
           <p className="text-base text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
-            Search any Riot ID. Instantly view competitive performance, match history, rank data, and agent analytics.
+            Search any Riot ID. Instantly view competitive performance, match
+            history and analytics.
           </p>
         </div>
 
@@ -86,7 +111,11 @@ export default function Home() {
               key={f.title}
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.22 + i * 0.07, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                delay: 0.22 + i * 0.07,
+                duration: 0.45,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="glass rounded-xl p-4 text-left flex items-start gap-3 hover:-translate-y-0.5 transition-transform duration-200"
             >
               <div
@@ -96,8 +125,12 @@ export default function Home() {
                 <f.icon size={15} style={{ color: f.color }} />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[var(--text-primary)]">{f.title}</p>
-                <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">{f.desc}</p>
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  {f.title}
+                </p>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">
+                  {f.desc}
+                </p>
               </div>
             </motion.div>
           ))}

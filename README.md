@@ -8,67 +8,149 @@
 </p>
 
 <p align="center">
-  A premium, high-performance VALORANT stats tracker. Get deep insights into your competitive performance with clean analytics, visual trends, and shareable highlights.
+  A high-performance VALORANT stats tracker. Deep performance analytics, visual trends, match filtering, and AI-ready data exports — all in one place.
 </p>
 
 ---
 
-## 🚀 Overview
+## Overview
 
-TrackerX is a modern web application designed for VALORANT players who want a fast, lightweight, and visually stunning way to track their progress. By aggregating data from unofficial and official sources, it provides a comprehensive breakdown of your matches, agent mastery, and seasonal rank progression.
+TrackerX is built for VALORANT players who want fast, accurate insight into their game. It pulls match data from the Henrik API (with a Riot API fallback), normalizes everything into a consistent shape, and presents it through clean charts, a live dashboard, and detailed match history — no bloat, no unnecessary requests.
 
-## ✨ Core Features
+## Features
 
 | Feature | Description |
 | :--- | :--- |
-| **Instant Player Search** | Look up any Riot ID across NA and EU regions with zero latency. |
-| **Competitive Dashboard** | Real-time snapshot of your K/D ratio, ACS, win rates, and headshot accuracy. |
-| **Rank & MMR Tracking** | View your current rank, RR progress, and seasonal peak tiers. |
-| **Advanced Match History** | Expandable match cards showing full scoreboards, map details, and individual performance. |
-| **Data Visualization** | Interactive charts for ACS trends, agent win rates, and performance radar profiles. |
-| **Analytics Export** | Download your complete match history and player stats in JSON or CSV formats. |
-| **Social Share Cards** | Generate and download custom PNG stat cards to showcase your performance on social media. |
-| **Dark Mode Architecture** | A sleek, Valorant-inspired interface with full dark/light mode support. |
+| **Player Search** | Look up any Riot ID across NA and EU. Recent searches are saved locally for quick access. |
+| **Performance Dashboard** | Live snapshot of K/D, ACS, win rate, and headshot % — always calculated from the currently loaded match pool. |
+| **Rank & MMR Tracking** | Current rank, RR, and seasonal peak pulled from the MMR endpoint. |
+| **Match History** | Expandable match cards with full scoreboard, map, agent, and round count. Lazy-loads additional pages on demand. |
+| **Match Type Filter** | Toggle between All Modes and Competitive to isolate ranked performance. Stats and charts update instantly without refetching. |
+| **Performance Charts** | ACS trend line, agent win rate bar chart, agent distribution pie chart, and a performance radar benchmarked against your rank tier. |
+| **AI-Ready JSON Export** | Exports a single structured JSON covering overall stats, per-agent breakdown, per-map breakdown, and full match history — formatted for direct use with AI analysis tools. |
+| **Share Card** | Generates a downloadable PNG stat card with your top 6 stats and top agent spotlight. Always reflects the current match pool. |
+| **Dark / Light Mode** | Full theme support. Preference is persisted across sessions. |
+| **Account Cache** | Account lookups are cached in localStorage with an 8-hour TTL to avoid redundant network requests. |
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend & Core
-- **Framework:** Next.js 16 (App Router)
-- **Styling:** Tailwind CSS v4 (Modern JIT engine)
-- **Animations:** Framer Motion (Smooth layout transitions)
+### Frontend
+- **Framework:** Next.js 16 (App Router for pages, Pages Router for API routes)
+- **Styling:** Tailwind CSS v4
+- **Animations:** Framer Motion v12
 - **Icons:** Lucide React
 
 ### Data & State
-- **Data Fetching:** TanStack React Query v5 (Optimized caching & revalidation)
-- **State Management:** Zustand (Lightweight global store)
-- **Charts:** Recharts (Responsive SVG analytics)
+- **Data Fetching:** TanStack React Query v5
+- **State:** Zustand v5
+- **Charts:** Recharts v3
 
 ### Utilities
-- **Data Export:** PapaParse (CSV)
-- **Image Generation:** html-to-image (Stat card snapshots)
-- **Date Handling:** Custom time-ago utilities
+- **Image Export:** html-to-image
+- **CSV Parsing:** PapaParse (legacy, kept for backward compatibility)
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
-app/                    # Next.js App Router (Pages & Layouts)
-components/             # React components organized by feature
-  ├── Dashboard/        # Player overview & Stat banners
-  ├── MatchHistory/     # Recent games & Scoreboards
-  ├── Charts/           # Recharts implementations
-  ├── ShareCard/        # Social media image generator
-  └── ui/               # Reusable primitive components
-hooks/                  # Custom React hooks for API & State
-lib/                    # Core logic: API clients, caching, & utils
-store/                  # Zustand store definitions
-public/                 # Static assets & placeholders
+app/
+  ├── page.js                   # Home / search page
+  ├── layout.js                 # Root layout, theme provider
+  └── player/[riotId]/
+      └── page.js               # Player stats page
+
+components/
+  ├── Dashboard/                # Player banner + stat cards
+  ├── MatchHistory/             # Match list + expandable cards
+  ├── Charts/                   # ACS line, radar, agent pie/bar
+  ├── ShareCard/                # PNG export card
+  └── ui/                       # Toast, Skeleton, ErrorState, ThemeToggle
+
+hooks/
+  ├── usePlayer.js              # Account fetch with localStorage cache
+  ├── useMatches.js             # Match list + lazy load pagination
+  ├── useMMR.js                 # Rank / MMR data
+  └── useRankHistory.js         # Rank progression
+
+lib/
+  ├── utils.js                  # extractPlayerStats, aggregateStats, getAgentStats,
+  │                             # getMapStats, capitalizeAgent, buildExportPayload, normalizeHenrikMatch
+  └── exportData.js             # exportFullJSON (and legacy exportJSON / exportMatchCSV)
+
+pages/api/riot/
+  ├── account.js                # Riot ID → PUUID lookup
+  ├── matches.js                # Match list (Henrik primary, Riot fallback)
+  ├── match.js                  # Single match detail
+  └── mmr.js                    # MMR / rank data
 ```
 
-## 📝 Performance & Design Notes
+---
 
-- **Optimized for Speed:** Uses a hybrid API approach to ensure fast data retrieval even with standard API limitations.
-- **Mobile First:** Every chart and dashboard element is fully responsive and touch-optimized.
-- **Server-Side Security:** All external API calls are proxied through internal Next.js API routes to protect sensitive integration logic.
-- **Persistent UX:** User preferences for theme and region are automatically saved for returning visits.
+## Export Format
+
+The "Export JSON" button in the navbar produces a single file covering everything TrackerX has loaded for that session:
+
+```json
+{
+  "exportedAt": "2026-03-16T00:00:00.000Z",
+  "player": "Name#TAG",
+  "region": "na",
+  "matchesAnalyzed": 20,
+  "overallStats": {
+    "kd": 1.32,
+    "winRate": 58.0,
+    "hsPct": 23.1,
+    "acs": 218,
+    "kills": 264,
+    "deaths": 200,
+    "assists": 74,
+    "avgKills": 13.2,
+    "avgDeaths": 10.0,
+    "avgAssists": 3.7,
+    "damagePerRound": null,
+    "firstBloods": null,
+    "firstDeaths": null,
+    "clutchSuccessRate": null,
+    "kastPct": null
+  },
+  "agents": [
+    { "agent": "Jett", "games": 9, "winRate": 66.7, "acs": 241, "kd": 1.51, "hsPct": 26.2, "firstBloodRate": null }
+  ],
+  "maps": [
+    { "map": "Ascent", "games": 5, "winRate": 60.0, "acs": 225, "kd": 1.4, "attackWinPct": null, "defenseWinPct": null, "firstDeaths": null }
+  ],
+  "roundImpact": { "openingDuelSuccessRate": null, "tradeKills": null, "tradedDeaths": null, "multiKillRounds": null, "ecoPerformance": null, "antiEcoPerformance": null },
+  "weapons": [],
+  "teamImpact": { "spikePlants": null, "spikeDefuses": null, "clutchAttempts": null, "clutchWins": null },
+  "matches": [
+    {
+      "date": "2026-03-10",
+      "map": "Ascent",
+      "agent": "Jett",
+      "score": "13–7",
+      "result": "Win",
+      "kills": 18,
+      "deaths": 11,
+      "assists": 3,
+      "kd": 1.64,
+      "acs": 267,
+      "hsPct": 28.6,
+      "damage": null,
+      "durationSeconds": 2340
+    }
+  ]
+}
+```
+
+Fields marked `null` are structurally reserved — the Henrik API doesn't expose per-round damage, clutch data, or weapon breakdowns at the match detail level. The schema stays consistent so any tooling built on top of this format won't break if those fields get populated later.
+
+---
+
+## Performance Notes
+
+- Initial load fetches 10 matches. Additional pages load on demand via the "Load More" button — no unnecessary upfront requests.
+- All API calls are proxied through Next.js API routes. No keys are exposed to the client.
+- Match data from Henrik is normalized in `lib/utils.js` (`normalizeHenrikMatch`) into the same shape as the Riot API fallback, so every consumer downstream is API-source agnostic.
+- The match type filter (`All Modes` / `Competitive`) runs entirely client-side on the already-fetched data — no refetch triggered.
+- The share card and all stat computations derive from the same `matchStats` memo, so loading more matches automatically propagates to every display and export without any manual refresh.
