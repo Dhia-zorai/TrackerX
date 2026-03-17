@@ -25,9 +25,11 @@ export default function PlayerPage({ params }) {
   const { gameName, tagLine } = decodeRiotIdFromUrl(resolvedParams.riotId);
 
   const { data: account, isLoading: accountLoading, error: accountError } = usePlayer(gameName, tagLine, region);
-  const { matches, matchDetailsLoading, matchListLoading, matchListError, hasMore, loadMore, refetch } = useMatches(
+  const { matches, matchDetailsLoading, matchListLoading, matchListError, hasMore, loadMore, loadingMore, refetch } = useMatches(
     account?.puuid,
-    region
+    region,
+    gameName,
+    tagLine
   );
   const { data: mmr } = useMMR({ puuid: account?.puuid, region });
 
@@ -148,6 +150,7 @@ export default function PlayerPage({ params }) {
               puuid={account?.puuid}
               matches={filteredMatches}
               loading={loading}
+              loadingMore={loadingMore}
               error={matchListError}
               hasMore={hasMore}
               loadMore={loadMore}

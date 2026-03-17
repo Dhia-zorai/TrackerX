@@ -10,12 +10,10 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
-    "@tanstack/react-query-devtools": "^5.91.3",
-    "file-saver": "^2.0.5",
     "framer-motion": "^12.36.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.577.0",
-    "next": "16.1.6",
+    "next": "^15.3.1",
     "papaparse": "^5.5.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -25,7 +23,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "^15.3.1",
     "tailwindcss": "^4"
   }
 }
