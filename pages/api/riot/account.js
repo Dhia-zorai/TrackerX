@@ -16,42 +16,48 @@ export default async function handler(req, res) {
 
   console.log(`[Account] Looking up ${gameName}#${tagLine} in region ${region}`);
 
-  // --- Primary: Official Riot API (account lookups work on dev keys) ---
-  try {
-    console.log(`[Account] Trying Riot API...`);
-    const account = await getAccountByRiotId(gameName, tagLine, region);
-    setCache(cacheKey, account, 600); // 10 min
-    return res.status(200).json(account);
-  } catch (riotErr) {
-    if (riotErr.status === 404) return res.status(404).json({ error: "Player not found" });
-    console.warn(`[Account] Riot failed: ${riotErr.message}`);
-  }
+   // --- Primary: Official Riot API (account lookups work on dev keys) ---
+   try {
+     console.log(`[Account] Trying Riot API...`);
+     const account = await getAccountByRiotId(gameName, tagLine, region);
+     setCache(cacheKey, account, 600); // 10 min
+     return res.status(200).json(account);
+   } catch (riotErr) {
+     if (riotErr.status === 404) return res.status(404).json({ error: "Player not found" });
+     console.warn(`[Account] Riot failed: ${riotErr.message}`);
+   }
 
-  // --- Fallback: Henrik v2 account (also includes card/level) ---
-  try {
-    console.log(`[Account] Trying Henrik API...`);
-    const hAccount = await henrikGetAccount(gameName, tagLine);
-    // Henrik v2 returns: { puuid, region, account_level, name, tag, card: {...}, last_update }
-    const normalized = {
-      puuid: hAccount.puuid,
-      gameName: hAccount.name || gameName,
-      tagLine: hAccount.tag || tagLine,
-      accountLevel: hAccount.account_level,
-      card: hAccount.card,
-    };
-    setCache(cacheKey, normalized, 600);
-    return res.status(200).json(normalized);
-  } catch (henrikErr) {
-    if (henrikErr.status === 404) return res.status(404).json({ error: "Player not found" });
-    console.error(`[Account] Henrik failed: ${henrikErr.message}`);
-    return res.status(502).json({ 
-      error: "Could not look up player — both APIs unavailable",
-      debug: {
-        riot_key_set: !!process.env.RIOT_API_KEY,
-        henrik_key_set: !!process.env.HENRIK_API_KEY,
-        note: "Check Vercel env vars: RIOT_API_KEY and HENRIK_API_KEY must be set"
-      }
-    });
-  }
+   // --- Fallback: Henrik v2 account (also includes card/level) ---
+   try {
+     console.log(`[Account] Trying Henrik API...`);
+     const hAccount = await henrikGetAccount(gameName, tagLine);
+     // Henrik v2 returns: { puuid, region, account_level, name, tag, card: {...}, last_update }
+     
+     // Extract detected region from Henrik response (player's actual region)
+     const detectedRegion = hAccount.region || region || "na";
+     console.log(`[Account] Detected player region: ${detectedRegion}`);
+     
+     const normalized = {
+       puuid: hAccount.puuid,
+       gameName: hAccount.name || gameName,
+       tagLine: hAccount.tag || tagLine,
+       accountLevel: hAccount.account_level,
+       card: hAccount.card,
+       detectedRegion: detectedRegion, // Include detected region for client-side routing
+     };
+     setCache(cacheKey, normalized, 600);
+     return res.status(200).json(normalized);
+   } catch (henrikErr) {
+     if (henrikErr.status === 404) return res.status(404).json({ error: "Player not found" });
+     console.error(`[Account] Henrik failed: ${henrikErr.message}`);
+     return res.status(502).json({ 
+       error: "Could not look up player — both APIs unavailable",
+       debug: {
+         riot_key_set: !!process.env.RIOT_API_KEY,
+         henrik_key_set: !!process.env.HENRIK_API_KEY,
+         note: "Check Vercel env vars: RIOT_API_KEY and HENRIK_API_KEY must be set"
+       }
+     });
+   }
 }
 

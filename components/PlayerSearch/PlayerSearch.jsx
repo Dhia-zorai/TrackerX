@@ -38,24 +38,29 @@ export default function PlayerSearch({ compact = false }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [initializeRegion]);
 
-  async function handleSearch(searchInput, searchRegion) {
-    const val = searchInput !== undefined ? searchInput : input;
-    const reg = searchRegion || region;
-    const parsed = parseRiotId(val);
-    if (!parsed) { setError("Enter a valid Riot ID (e.g. TenZ#NA1)"); return; }
-    setError(""); setLoading(true); setShowDropdown(false);
-    try {
-      const params = new URLSearchParams({ gameName: parsed.gameName, tagLine: parsed.tagLine, region: reg });
-      const res = await fetch("/api/riot/account?" + params);
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Player not found"); setLoading(false); return; }
-      addRecentSearch(parsed.gameName + "#" + parsed.tagLine, reg);
-      router.push("/player/" + encodeRiotIdForUrl(parsed.gameName, parsed.tagLine) + "?region=" + reg);
-    } catch (e) {
-      setError("Connection error. Please try again.");
-      setLoading(false);
-    }
-  }
+   async function handleSearch(searchInput, searchRegion) {
+     const val = searchInput !== undefined ? searchInput : input;
+     const reg = searchRegion || region;
+     const parsed = parseRiotId(val);
+     if (!parsed) { setError("Enter a valid Riot ID (e.g. TenZ#NA1)"); return; }
+     setError(""); setLoading(true); setShowDropdown(false);
+     try {
+       const params = new URLSearchParams({ gameName: parsed.gameName, tagLine: parsed.tagLine, region: reg });
+       const res = await fetch("/api/riot/account?" + params);
+       const data = await res.json();
+       if (!res.ok) { setError(data.error || "Player not found"); setLoading(false); return; }
+       
+       // Use detected region from API response for routing (fixes cross-region search issue)
+       const finalRegion = data.detectedRegion || reg;
+       console.log(`[Search] Routing with region: ${finalRegion} (detected: ${data.detectedRegion}, requested: ${reg})`);
+       
+       addRecentSearch(parsed.gameName + "#" + parsed.tagLine, finalRegion);
+       router.push("/player/" + encodeRiotIdForUrl(parsed.gameName, parsed.tagLine) + "?region=" + finalRegion);
+     } catch (e) {
+       setError("Connection error. Please try again.");
+       setLoading(false);
+     }
+   }
 
   function handleKeyDown(e) {
     if (e.key === "Enter") handleSearch();
