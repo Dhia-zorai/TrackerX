@@ -11,6 +11,12 @@
   A high-performance VALORANT stats tracker. Deep performance analytics, visual trends, match filtering, and AI-ready data exports — all in one place.
 </p>
 
+### Hero Preview
+
+<p align="center">
+  <img src="public/screenshots/main page.png" alt="TrackerX - Main Page" width="800" />
+</p>
+
 ---
 
 ## Overview
@@ -31,6 +37,46 @@ TrackerX is built for VALORANT players who want fast, accurate insight into thei
 | **Share Card** | Generates a downloadable PNG stat card with your top 6 stats and top agent spotlight. Always reflects the current match pool. |
 | **Dark / Light Mode** | Full theme support. Preference is persisted across sessions. |
 | **Account Cache** | Account lookups are cached in localStorage with an 8-hour TTL to avoid redundant network requests. |
+
+---
+
+## Feature Showcase
+
+### Performance Dashboard
+<p align="center">
+  <img src="public/screenshots/quick player stats1.png" alt="Performance Dashboard - K/D, ACS, Win Rate, Headshot %" width="600" />
+</p>
+
+Live snapshot of your stats: K/D, ACS, win rate, headshot %, and more — always calculated from the currently loaded match pool.
+
+---
+
+### Performance Charts & Analytics
+<p align="center">
+  <img src="public/screenshots/recharts graphs.png" alt="Performance Charts - ACS Trend, Agent Analytics, Performance Radar" width="600" />
+</p>
+
+Visual analytics including ACS trend line, agent win rate distribution, agent playtime pie chart, and a performance radar benchmarked against your rank tier.
+
+---
+
+### Match History
+<p align="center">
+  <img src="public/screenshots/match history.png" alt="Match History - Expandable Match Cards with Full Details" width="600" />
+</p>
+
+Expandable match cards showing full scoreboard, map, agent played, and round count. Lazy-loads additional pages on demand via Load More button.
+
+---
+
+### Share Card
+<p align="center">
+  <img src="public/screenshots/share card.png" alt="Share Card - Downloadable PNG Stat Card" width="600" />
+</p>
+
+Generate a downloadable PNG stat card showcasing your top 6 stats and top agent spotlight. Perfect for sharing on socials or analyzing offline.
+
+---
 
 ## Tech Stack
 
