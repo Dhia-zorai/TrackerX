@@ -127,16 +127,16 @@ export default function PlayerPage({ params }) {
 
            {/* Match History */}
            <div className='space-y-4'>
-             {/* Filter Section */}
-             <div className='border border-[var(--border)] rounded-lg p-4 bg-[var(--bg-card)]'>
-               <div className='text-sm font-semibold text-[var(--text-primary)] mb-3'>Filter Matches</div>
-               <div className='flex items-center gap-3'>
+             {/* Filter Section - Bold & Interactive */}
+             <div className='bg-gradient-to-br from-[var(--bg-dark)] to-[var(--bg-card)] border-2 border-[var(--accent)]/30 rounded-lg p-4'>
+               <div className='text-sm font-bold text-[var(--text-primary)] mb-3 uppercase tracking-wide'>Filter Matches</div>
+               <div className='flex items-center gap-2'>
                  {['all', 'competitive'].map(mode => (
                    <button key={mode} onClick={() => setFilterMode(mode)}
-                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                     className={`flex-1 px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${
                        filterMode === mode
-                         ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/20'
-                         : 'border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:bg-[var(--bg-card-hover)]'
+                         ? 'bg-[var(--accent)] text-white border-2 border-[var(--accent)] shadow-xl shadow-[var(--accent)]/40 scale-105'
+                         : 'bg-[var(--bg-darker)] border-2 border-[var(--text-muted)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-lg hover:shadow-[var(--accent)]/20 hover:scale-102'
                      }`}>
                      {mode === 'all' ? 'All Modes' : 'Competitive'}
                    </button>
