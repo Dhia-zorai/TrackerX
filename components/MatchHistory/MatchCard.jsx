@@ -1,8 +1,46 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
+
+// Helper: Get sort indicator arrow
+function getSortIndicator(currentSort, currentOrder) {
+  if (currentSort === null) return ' —';
+  return currentOrder === 'desc' ? ' ↓' : ' ↑';
+}
+
+// Helper: Sort team by stat
+function getSortedTeam(team, sortBy, sortOrder) {
+  if (!sortBy) return team;
+  
+  const sorted = [...team].sort((a, b) => {
+    const aVal = a.stats?.[sortBy] ?? 0;
+    const bVal = b.stats?.[sortBy] ?? 0;
+    
+    if (sortOrder === 'desc') return bVal - aVal;
+    return aVal - bVal;
+  });
+  
+  return sorted;
+}
+
+// StatButton: Clickable stat header
+function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) {
+  const isActive = currentSort === statKey;
+  const indicator = isActive ? (currentOrder === 'desc' ? ' ↓' : ' ↑') : '';
+  
+  return (
+    <button
+      onClick={() => onStatClick(statKey)}
+      className={'text-[10px] font-semibold uppercase tracking-wider transition-colors ' +
+        (isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]')}
+      title="Click to sort"
+    >
+      {label}{indicator}
+    </button>
+  );
+}
 
 function ResultChip({ won, drew }) {
   if (drew) return <span className="chip-draw text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">DRAW</span>;
@@ -31,6 +69,9 @@ function ScoreboardRow({ player, isHighlighted }) {
 
 export default function MatchCard({ match, puuid }) {
   const [expanded, setExpanded] = useState(false);
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc');
+  
   if (!match) return null;
 
   const playerStats = extractPlayerStats(match, puuid);
@@ -51,6 +92,26 @@ export default function MatchCard({ match, puuid }) {
   const allPlayers = match.players || [];
   const myTeam    = allPlayers.filter(p => p.teamId === playerStats.teamId);
   const enemyTeam = allPlayers.filter(p => p.teamId !== playerStats.teamId);
+
+  // Handle stat click: cycle through DESC → ASC → ORIGINAL
+  function handleStatClick(statKey) {
+    if (sortBy === statKey) {
+      // Cycle: desc → asc → null → desc
+      if (sortOrder === 'desc') {
+        setSortOrder('asc');
+      } else {
+        setSortBy(null);
+        setSortOrder('desc');
+      }
+    } else {
+      setSortBy(statKey);
+      setSortOrder('desc');
+    }
+  }
+
+  // Get sorted teams
+  const sortedMyTeam = useMemo(() => getSortedTeam(myTeam, sortBy, sortOrder), [myTeam, sortBy, sortOrder]);
+  const sortedEnemyTeam = useMemo(() => getSortedTeam(enemyTeam, sortBy, sortOrder), [enemyTeam, sortBy, sortOrder]);
 
   const accentBg = playerStats.drew
     ? 'var(--draw-dim)'
@@ -140,16 +201,20 @@ export default function MatchCard({ match, puuid }) {
             <div className='p-4 space-y-4'>
               <div className='flex items-center gap-2 px-3 text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider'>
                 <span className='flex-1'>Player</span>
-                <span className='w-16 text-center'>K / D / A</span>
-                <span className='w-10 text-center'>ACS</span>
+                <div className='w-16 text-center flex justify-center'>
+                  <StatButton label="K/D/A" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="kills" />
+                </div>
+                <div className='w-10 text-center flex justify-center'>
+                  <StatButton label="ACS" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="acs" />
+                </div>
               </div>
               <div>
                 <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Your Team</p>
-                {myTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={p.puuid === puuid} />)}
+                {sortedMyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={p.puuid === puuid} />)}
               </div>
               <div>
                 <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Enemy Team</p>
-                {enemyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={false} />)}
+                {sortedEnemyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={false} />)}
               </div>
             </div>
           </motion.div>
