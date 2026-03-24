@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowUp, ArrowDown } from "lucide-react";
 import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
 
 // Helper: Get sort indicator arrow
@@ -34,22 +34,25 @@ function getSortedTeam(team, sortBy, sortOrder) {
   return sorted;
 }
 
-// StatButton: Clickable stat header
+// StatButton: Clickable stat header with sort indicators
 function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) {
   const isActive = currentSort === statKey;
-  const indicator = isActive ? (currentOrder === 'desc' ? ' ↓' : ' ↑') : '';
   
   return (
     <button
       onClick={() => onStatClick(statKey)}
-      className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border ' +
+      className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border flex flex-col items-center gap-0.5 ' +
         (isActive 
           ? 'bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)] shadow-sm' 
           : 'border-[var(--text-muted)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:border-[var(--accent)] hover:text-[var(--text-primary)] hover:shadow-sm'
         )}
       title="Click to sort"
     >
-      {label}{indicator}
+      <span className='leading-none'>{label}</span>
+      <div className='flex gap-0 -my-1'>
+        <ArrowUp size={8} strokeWidth={3} />
+        <ArrowDown size={8} strokeWidth={3} />
+      </div>
     </button>
   );
 }
