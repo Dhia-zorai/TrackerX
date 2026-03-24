@@ -71,10 +71,19 @@ Expandable match cards showing full scoreboard, map, agent played, and round cou
 
 ### Share Card
 <p align="center">
-  <img src="public/screenshots/share card.png" alt="Share Card - Downloadable PNG Stat Card" width="600" />
+  <img src="public/screenshots/share stats.png" alt="Share Card - Downloadable PNG Stat Card" width="600" />
 </p>
 
 Generate a downloadable PNG stat card showcasing your top 6 stats and top agent spotlight. Perfect for sharing on socials or analyzing offline.
+
+---
+
+### Data Export
+<p align="center">
+  <img src="public/screenshots/Export json.png" alt="Data Export - JSON Download with Filter Options" width="600" />
+</p>
+
+Export your match data as structured JSON with clear filter options. Choose between All Modes or Competitive-only exports, with live statistics preview showing exactly what will be exported.
 
 ---
 
