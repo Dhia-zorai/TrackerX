@@ -15,8 +15,17 @@ function getSortedTeam(team, sortBy, sortOrder) {
   if (!sortBy) return team;
   
   const sorted = [...team].sort((a, b) => {
-    const aVal = a.stats?.[sortBy] ?? 0;
-    const bVal = b.stats?.[sortBy] ?? 0;
+    let aVal, bVal;
+    
+    if (sortBy === 'acs') {
+      // ACS is calculated from score, not stored directly
+      aVal = a.stats?.score ? Math.round(a.stats.score / 12) : 0;
+      bVal = b.stats?.score ? Math.round(b.stats.score / 12) : 0;
+    } else {
+      // For kills, deaths, assists - access directly from stats
+      aVal = a.stats?.[sortBy] ?? 0;
+      bVal = b.stats?.[sortBy] ?? 0;
+    }
     
     if (sortOrder === 'desc') return bVal - aVal;
     return aVal - bVal;
@@ -33,8 +42,11 @@ function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) 
   return (
     <button
       onClick={() => onStatClick(statKey)}
-      className={'text-[10px] font-semibold uppercase tracking-wider transition-colors ' +
-        (isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]')}
+      className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border ' +
+        (isActive 
+          ? 'bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)] shadow-sm' 
+          : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:border-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:shadow-sm'
+        )}
       title="Click to sort"
     >
       {label}{indicator}
