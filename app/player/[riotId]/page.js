@@ -95,15 +95,9 @@ export default function PlayerPage({ params }) {
             <span className='font-semibold text-[var(--text-primary)]'>Tracker<span className='text-[var(--accent)]'>X</span></span>
           </div>
         </Link>
-        <div className='flex items-center gap-2'>
-          <div className='flex gap-1.5'>
-            <button onClick={handleExport}
-              className='flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors'>
-              <Download size={11} /> Export JSON
-            </button>
-          </div>
-          <ThemeToggle />
-        </div>
+         <div className='flex items-center gap-2'>
+           <ThemeToggle />
+         </div>
       </div>
 
       {accountLoading ? (
@@ -131,22 +125,25 @@ export default function PlayerPage({ params }) {
             </section>
           )}
 
-          {/* Match History */}
-          <div className='space-y-3'>
-            {/* Filter pills */}
-            <div className='flex items-center gap-2'>
-              {['all', 'competitive'].map(mode => (
-                <button key={mode} onClick={() => setFilterMode(mode)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                    filterMode === mode
-                      ? 'bg-[var(--accent)] text-white'
-                      : 'glass text-[var(--text-secondary)] hover:text-[var(--accent)]'
-                  }`}>
-                  {mode === 'all' ? 'All Modes' : 'Competitive'}
-                </button>
-              ))}
-            </div>
-            <MatchHistory
+           {/* Match History */}
+           <div className='space-y-4'>
+             {/* Filter Section */}
+             <div className='border border-[var(--border)] rounded-lg p-4 bg-[var(--bg-card)]'>
+               <div className='text-sm font-semibold text-[var(--text-primary)] mb-3'>Filter Matches</div>
+               <div className='flex items-center gap-3'>
+                 {['all', 'competitive'].map(mode => (
+                   <button key={mode} onClick={() => setFilterMode(mode)}
+                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                       filterMode === mode
+                         ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/20'
+                         : 'border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:bg-[var(--bg-card-hover)]'
+                     }`}>
+                     {mode === 'all' ? 'All Modes' : 'Competitive'}
+                   </button>
+                 ))}
+               </div>
+             </div>
+             <MatchHistory
               puuid={account?.puuid}
               matches={filteredMatches}
               loading={loading}
@@ -168,15 +165,31 @@ export default function PlayerPage({ params }) {
                    <p className='text-sm text-[var(--text-secondary)]'>Download your stats in JSON format</p>
                  </div>
 
-                 {/* Filter Mode & Stats Display */}
-                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                   {/* Filter Mode */}
-                   <div className='glass rounded-lg p-4'>
-                     <div className='text-xs text-[var(--text-secondary)] mb-1'>Filter Mode</div>
-                     <div className='text-sm font-semibold text-[var(--accent)]'>
-                       {filterMode === 'all' ? 'All Modes' : 'Competitive Only'}
-                     </div>
-                   </div>
+                  {/* Filter Mode & Stats Display */}
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                    {/* Filter Mode - Interactive Segmented Control */}
+                    <div className='glass rounded-lg p-1 flex gap-1'>
+                      <button
+                        onClick={() => setFilterMode('all')}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                          filterMode === 'all'
+                            ? 'bg-[var(--accent)] text-white'
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        }`}
+                      >
+                        All Matches
+                      </button>
+                      <button
+                        onClick={() => setFilterMode('competitive')}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                          filterMode === 'competitive'
+                            ? 'bg-[var(--accent)] text-white'
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        }`}
+                      >
+                        Competitive Only
+                      </button>
+                    </div>
 
                    {/* Match Count */}
                    <div className='glass rounded-lg p-4'>

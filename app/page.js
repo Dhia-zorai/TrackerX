@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import PlayerSearch from "@/components/PlayerSearch";
-import { Crosshair, TrendingUp, Users, Shield } from "lucide-react";
+import { Crosshair, TrendingUp, Activity, FileJson } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const features = [
@@ -18,16 +18,16 @@ const features = [
     color: "var(--accent2)",
   },
   {
-    icon: Users,
-    title: "Leaderboard",
-    desc: "Top Radiant players ranked by RR in your region",
-    color: "#a78bfa",
+    icon: Activity,
+    title: "Performance Trends",
+    desc: "Track how your stats evolve over time with interactive graphs and insights",
+    color: "#6366f1",
   },
   {
-    icon: Shield,
-    title: "Rank Tracking",
-    desc: "Current rank, RR, last-game change, and peak rank",
-    color: "#34d399",
+    icon: FileJson,
+    title: "Data Export (JSON)",
+    desc: "Download your stats as structured JSON for deeper analysis or external tools",
+    color: "#10b981",
   },
 ];
 
