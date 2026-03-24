@@ -41,7 +41,7 @@ function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) 
   return (
     <button
       onClick={() => onStatClick(statKey)}
-      className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border flex flex-col items-center gap-0.5 ' +
+      className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border flex flex-col items-center gap-1.5 ' +
         (isActive 
           ? 'bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)] shadow-sm' 
           : 'border-[var(--text-muted)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:border-[var(--accent)] hover:text-[var(--text-primary)] hover:shadow-sm'
@@ -49,7 +49,7 @@ function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) 
       title="Click to sort"
     >
       <span className='leading-none'>{label}</span>
-      <div className='flex gap-0 -my-1'>
+      <div className='flex gap-0'>
         <ArrowUp size={8} strokeWidth={3} />
         <ArrowDown size={8} strokeWidth={3} />
       </div>
