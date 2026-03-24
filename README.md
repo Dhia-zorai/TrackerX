@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  A high-performance VALORANT stats tracker. Deep performance analytics, visual trends, match filtering, and AI-ready data exports — all in one place.
+  A high-performance VALORANT stats tracker. Deep performance analytics, visual trends, match filtering, and AI-ready data exports. All in one place.
 </p>
 
 ### Hero Preview
@@ -21,19 +21,19 @@
 
 ## Overview
 
-TrackerX is built for VALORANT players who want fast, accurate insight into their game. It pulls match data from the Henrik API (with a Riot API fallback), normalizes everything into a consistent shape, and presents it through clean charts, a live dashboard, and detailed match history — no bloat, no unnecessary requests.
+TrackerX is built for VALORANT players who want fast, accurate insight into their game. It pulls match data from the Henrik API (with a Riot API fallback), normalizes everything into a consistent shape, and presents it through clean charts, a live dashboard, and detailed match history with no bloat and no unnecessary requests.
 
 ## Features
 
 | Feature | Description |
 | :--- | :--- |
 | **Player Search** | Look up any Riot ID across NA and EU. Recent searches are saved locally for quick access. |
-| **Performance Dashboard** | Live snapshot of K/D, ACS, win rate, and headshot % — always calculated from the currently loaded match pool. |
+| **Performance Dashboard** | Live snapshot of K/D, ACS, win rate, and headshot % - always calculated from the currently loaded match pool. |
 | **Rank & MMR Tracking** | Current rank, RR, and seasonal peak pulled from the MMR endpoint. |
 | **Match History** | Expandable match cards with full scoreboard, map, agent, and round count. Lazy-loads additional pages on demand. |
 | **Match Type Filter** | Toggle between All Modes and Competitive to isolate ranked performance. Stats and charts update instantly without refetching. |
 | **Performance Charts** | ACS trend line, agent win rate bar chart, agent distribution pie chart, and a performance radar benchmarked against your rank tier. |
-| **AI-Ready JSON Export** | Exports a single structured JSON covering overall stats, per-agent breakdown, per-map breakdown, and full match history — formatted for direct use with AI analysis tools. |
+| **AI-Ready JSON Export** | Exports a single structured JSON covering overall stats, per-agent breakdown, per-map breakdown, and full match history. Formatted for direct use with AI analysis tools. |
 | **Share Card** | Generates a downloadable PNG stat card with your top 6 stats and top agent spotlight. Always reflects the current match pool. |
 | **Dark / Light Mode** | Full theme support. Preference is persisted across sessions. |
 | **Account Cache** | Account lookups are cached in localStorage with an 8-hour TTL to avoid redundant network requests. |
@@ -47,7 +47,7 @@ TrackerX is built for VALORANT players who want fast, accurate insight into thei
   <img src="public/screenshots/quick player stats1.png" alt="Performance Dashboard - K/D, ACS, Win Rate, Headshot %" width="600" />
 </p>
 
-Live snapshot of your stats: K/D, ACS, win rate, headshot %, and more — always calculated from the currently loaded match pool.
+Live snapshot of your stats: K/D, ACS, win rate, headshot %, and more. Always calculated from the currently loaded match pool.
 
 ---
 
@@ -198,14 +198,14 @@ The "Export JSON" button in the navbar produces a single file covering everythin
 }
 ```
 
-Fields marked `null` are structurally reserved — the Henrik API doesn't expose per-round damage, clutch data, or weapon breakdowns at the match detail level. The schema stays consistent so any tooling built on top of this format won't break if those fields get populated later.
+Fields marked `null` are structurally reserved. The Henrik API doesn't expose per-round damage, clutch data, or weapon breakdowns at the match detail level. The schema stays consistent so any tooling built on top of this format won't break if those fields get populated later.
 
 ---
 
 ## Performance Notes
 
-- Initial load fetches 10 matches. Additional pages load on demand via the "Load More" button — no unnecessary upfront requests.
+- Initial load fetches 10 matches. Additional pages load on demand via the "Load More" button with no unnecessary upfront requests.
 - All API calls are proxied through Next.js API routes. No keys are exposed to the client.
 - Match data from Henrik is normalized in `lib/utils.js` (`normalizeHenrikMatch`) into the same shape as the Riot API fallback, so every consumer downstream is API-source agnostic.
-- The match type filter (`All Modes` / `Competitive`) runs entirely client-side on the already-fetched data — no refetch triggered.
+- The match type filter (`All Modes` / `Competitive`) runs entirely client-side on the already-fetched data with no refetch triggered.
 - The share card and all stat computations derive from the same `matchStats` memo, so loading more matches automatically propagates to every display and export without any manual refresh.
