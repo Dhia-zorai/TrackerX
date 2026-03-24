@@ -158,13 +158,60 @@ export default function PlayerPage({ params }) {
             />
           </div>
 
-          {/* Share Card */}
-          {matchStats.length > 0 && (
-            <div className='space-y-3'>
-              <h2 className='text-lg font-bold text-[var(--text-primary)]'>Share Stats</h2>
-              <ShareCard account={account} stats={aggregated} agentStats={agentStats} />
-            </div>
-          )}
+           {/* Export JSON Section */}
+           {matchStats.length > 0 && (
+             <div className='glass-accent rounded-xl p-6 border border-[var(--border-light)]'>
+               <div className='space-y-4'>
+                 {/* Header */}
+                 <div className='space-y-2'>
+                   <h2 className='text-lg font-bold text-[var(--text-primary)]'>Export Match Data</h2>
+                   <p className='text-sm text-[var(--text-secondary)]'>Download your stats in JSON format</p>
+                 </div>
+
+                 {/* Filter Mode & Stats Display */}
+                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                   {/* Filter Mode */}
+                   <div className='glass rounded-lg p-4'>
+                     <div className='text-xs text-[var(--text-secondary)] mb-1'>Filter Mode</div>
+                     <div className='text-sm font-semibold text-[var(--accent)]'>
+                       {filterMode === 'all' ? 'All Modes' : 'Competitive Only'}
+                     </div>
+                   </div>
+
+                   {/* Match Count */}
+                   <div className='glass rounded-lg p-4'>
+                     <div className='text-xs text-[var(--text-secondary)] mb-1'>Matches to Export</div>
+                     <div className='text-sm font-semibold text-[var(--text-primary)]'>
+                       {filteredMatches.length} {filteredMatches.length === 1 ? 'match' : 'matches'}
+                     </div>
+                   </div>
+
+                   {/* Quick Stats */}
+                   <div className='glass rounded-lg p-4'>
+                     <div className='text-xs text-[var(--text-secondary)] mb-1'>Performance</div>
+                     <div className='text-sm font-semibold text-[var(--text-primary)]'>
+                       {aggregated.kd?.toFixed(2) || '0.00'} K/D • {aggregated.acs?.toFixed(0) || '0'} ACS
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* Export Button */}
+                 <button onClick={handleExport}
+                   className='w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--accent)] text-white font-semibold rounded-lg hover:opacity-90 transition-opacity'>
+                   <Download size={16} />
+                   Export JSON
+                 </button>
+               </div>
+             </div>
+           )}
+
+           {/* Share Card */}
+           {matchStats.length > 0 && (
+             <div className='space-y-3'>
+               <h2 className='text-lg font-bold text-[var(--text-primary)]'>Share Stats</h2>
+               <ShareCard account={account} stats={aggregated} agentStats={agentStats} />
+             </div>
+           )}
         </motion.div>
       )}
 
