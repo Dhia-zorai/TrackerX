@@ -45,7 +45,7 @@ function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) 
       className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border ' +
         (isActive 
           ? 'bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)] shadow-sm' 
-          : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:border-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:shadow-sm'
+          : 'border-[var(--text-muted)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:border-[var(--accent)] hover:text-[var(--text-primary)] hover:shadow-sm'
         )}
       title="Click to sort"
     >
