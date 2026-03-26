@@ -4,12 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ArrowUp, ArrowDown } from "lucide-react";
 import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
 
-// Helper: Get sort indicator arrow
-function getSortIndicator(currentSort, currentOrder) {
-  if (currentSort === null) return ' —';
-  return currentOrder === 'desc' ? ' ↓' : ' ↑';
-}
-
 // Helper: Sort team by stat
 function getSortedTeam(team, sortBy, sortOrder) {
   if (!sortBy) return team;

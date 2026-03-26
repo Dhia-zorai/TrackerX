@@ -81,11 +81,6 @@ export const usePlayerStore = create(
       // Theme
       theme: "dark",
       toggleTheme: () => set(s => ({ theme: s.theme === "dark" ? "light" : "dark" })),
-      setTheme: (theme) => set({ theme }),
-
-      // Current player (for quick access)
-      currentPlayer: null,
-      setCurrentPlayer: (player) => set({ currentPlayer: player }),
     }),
     {
       name: "trackerx-store",

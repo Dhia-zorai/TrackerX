@@ -102,7 +102,6 @@ Export your match data as structured JSON with clear filter options. Choose betw
 
 ### Utilities
 - **Image Export:** html-to-image
-- **CSV Parsing:** PapaParse (legacy, kept for backward compatibility)
 
 ---
 
@@ -131,7 +130,7 @@ hooks/
 lib/
   ├── utils.js                  # extractPlayerStats, aggregateStats, getAgentStats,
   │                             # getMapStats, capitalizeAgent, buildExportPayload, normalizeHenrikMatch
-  └── exportData.js             # exportFullJSON (and legacy exportJSON / exportMatchCSV)
+  └── exportData.js             # exportFullJSON
 
 pages/api/riot/
   ├── account.js                # Riot ID → PUUID lookup
