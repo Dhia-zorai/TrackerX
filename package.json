@@ -98,7 +98,8 @@
         }
       ],
       "icon": "public/icon.png",
-      "category": "Game"
+      "category": "Game",
+      "maintainer": "TrackerX <trackerx@example.com>"
     },
     "nsis": {
       "oneClick": false,
