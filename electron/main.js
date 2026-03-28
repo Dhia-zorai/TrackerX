@@ -1,5 +1,6 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { fork } = require('child_process');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -16,12 +17,19 @@ let nextServer;
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const PORT = process.env.PORT || 3000;
 
-// Get the correct path to the standalone directory
+// Resolve the path to Next standalone output across packaging layouts
 function getStandalonePath() {
   if (app.isPackaged) {
-    // In packaged app, standalone is at resources/standalone
-    return path.join(process.resourcesPath, 'standalone');
+    const candidates = [
+      path.join(process.resourcesPath, 'standalone'),
+      path.join(process.resourcesPath, 'app', 'standalone'),
+      path.join(process.resourcesPath, 'app', '.next', 'standalone'),
+    ];
+
+    const found = candidates.find((dir) => fs.existsSync(path.join(dir, 'server.js')));
+    return found || candidates[0];
   }
+
   // In development, it's at .next/standalone
   return path.join(__dirname, '..', '.next', 'standalone');
 }
@@ -89,8 +97,15 @@ function startNextServer() {
     const standaloneDir = getStandalonePath();
     const serverScript = path.join(__dirname, 'server.js');
     
+    if (!fs.existsSync(path.join(standaloneDir, 'server.js'))) {
+      reject(new Error(`Standalone server.js not found in: ${standaloneDir}`));
+      return;
+    }
+
     console.log('Starting server with standaloneDir:', standaloneDir);
     console.log('Server script:', serverScript);
+
+    let settled = false;
 
     nextServer = fork(serverScript, [PORT.toString(), standaloneDir], {
       env: { ...process.env, PORT: PORT.toString() },
@@ -107,18 +122,31 @@ function startNextServer() {
 
     nextServer.on('message', (msg) => {
       if (msg === 'ready') {
+        settled = true;
         console.log('Server ready!');
         resolve();
       }
     });
 
     nextServer.on('error', (err) => {
+      settled = true;
       console.error('Failed to start server:', err);
       reject(err);
     });
 
-    // Fallback timeout
-    setTimeout(resolve, 10000);
+    nextServer.on('exit', (code) => {
+      if (!settled) {
+        settled = true;
+        reject(new Error(`Next server process exited early with code ${code}`));
+      }
+    });
+
+    setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        reject(new Error('Timed out waiting for Next server to become ready'));
+      }
+    }, 20000);
   });
 }
 
@@ -128,6 +156,10 @@ app.whenReady().then(async () => {
     createWindow();
   } catch (err) {
     console.error('Failed to start application:', err);
+    dialog.showErrorBox(
+      'TrackerX Startup Error',
+      `TrackerX failed to start the internal server.\n\n${err.message}`
+    );
     app.quit();
   }
 

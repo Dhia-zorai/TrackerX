@@ -45,7 +45,12 @@ if (fs.existsSync(standaloneServer)) {
   process.chdir(standaloneDir);
   
   // Require the standalone server
-  require(standaloneServer);
+  try {
+    require(standaloneServer);
+  } catch (error) {
+    console.error('Failed loading standalone server:', error);
+    process.exit(1);
+  }
   
   // Signal ready after a short delay
   setTimeout(() => {
