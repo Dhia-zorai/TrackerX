@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "VALORANT Stats Tracker - Performance analytics and match history",
-  "author": "TrackerX",
+  "author": "TrackerX Maintainers <noreply@trackerx.app>",
   "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
@@ -83,6 +83,7 @@
       "category": "public.app-category.games"
     },
     "linux": {
+      "maintainer": "TrackerX Maintainers <noreply@trackerx.app>",
       "target": [
         {
           "target": "AppImage",
