@@ -23,6 +23,24 @@
 
 TrackerX is built for VALORANT players who want fast, accurate insight into their game. It pulls match data from the Henrik API, normalizes everything into a consistent shape, and presents it through clean charts, a live dashboard, and detailed match history with no bloat.
 
+## Desktop App (Electron)
+
+TrackerX is now available as a desktop app in addition to the web version.
+
+### Download
+
+Get the latest desktop builds from **GitHub Releases**:
+
+- **Windows:** `.exe` (portable)
+- **macOS:** `.dmg`
+- **Linux:** `.AppImage` and `.deb`
+
+### Notes
+
+- The desktop app runs the Next.js server internally, so API routes (`pages/api/*`) and key protection still work.
+- The web app continues to work exactly as before.
+- Releases are built automatically with GitHub Actions on pushes to `main`.
+
 ## Features
 
 | Feature                   | Description                                                                                                                                                               |
