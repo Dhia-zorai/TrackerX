@@ -48,11 +48,7 @@ function createWindow() {
     icon: path.join(__dirname, '../public/icon.png'),
     titleBarStyle: 'default',
     backgroundColor: '#0a0a0a',
-    show: false,
-  });
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
+    show: true,
   });
 
   const url = `http://localhost:${PORT}`;
@@ -64,6 +60,30 @@ function createWindow() {
         setTimeout(() => loadWithRetry(retries - 1), 500);
       } else {
         console.error('Failed to load URL after retries:', err);
+        const errorHtml = `
+          <html>
+            <head>
+              <meta charset="utf-8" />
+              <title>TrackerX Startup Error</title>
+              <style>
+                body { font-family: Segoe UI, sans-serif; background: #0f1115; color: #f2f5f7; margin: 0; padding: 24px; }
+                .card { max-width: 760px; margin: 40px auto; padding: 20px; border-radius: 10px; background: #171a21; border: 1px solid #2a2f3a; }
+                h1 { margin-top: 0; font-size: 22px; }
+                p { color: #c7ced8; line-height: 1.5; }
+                code { display: block; margin-top: 12px; padding: 10px; border-radius: 8px; background: #0d1016; color: #ffcb6b; white-space: pre-wrap; }
+              </style>
+            </head>
+            <body>
+              <div class="card">
+                <h1>TrackerX could not start</h1>
+                <p>The internal server did not respond on <strong>${url}</strong>.</p>
+                <p>Close the app and start it again. If this persists, download the latest release build.</p>
+                <code>${String(err && err.message ? err.message : err)}</code>
+              </div>
+            </body>
+          </html>
+        `;
+        mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`);
       }
     });
   };
