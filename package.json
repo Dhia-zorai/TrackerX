@@ -11,11 +11,12 @@
     "start": "next start",
     "lint": "eslint",
     "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron:build": "npm run build && electron-builder",
-    "electron:build:win": "npm run build && electron-builder --win",
-    "electron:build:mac": "npm run build && electron-builder --mac",
-    "electron:build:linux": "npm run build && electron-builder --linux",
-    "electron:build:all": "npm run build && electron-builder --win --mac --linux"
+    "electron:prepare": "node scripts/prepare-standalone.js",
+    "electron:build": "npm run build && npm run electron:prepare && electron-builder",
+    "electron:build:win": "npm run build && npm run electron:prepare && electron-builder --win",
+    "electron:build:mac": "npm run build && npm run electron:prepare && electron-builder --mac",
+    "electron:build:linux": "npm run build && npm run electron:prepare && electron-builder --linux",
+    "electron:build:all": "npm run build && npm run electron:prepare && electron-builder --win --mac --linux"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
@@ -45,20 +46,15 @@
     "directories": {
       "output": "dist-electron"
     },
+    "asar": false,
     "files": [
-      "electron/**/*",
-      ".next/**/*",
-      "public/**/*",
-      "node_modules/**/*",
-      "package.json"
+      "electron/**/*"
     ],
     "extraResources": [
       {
-        "from": ".env.local",
-        "to": ".env.local",
-        "filter": [
-          "**/*"
-        ]
+        "from": ".next/standalone",
+        "to": "standalone",
+        "filter": ["**/*"]
       }
     ],
     "win": {

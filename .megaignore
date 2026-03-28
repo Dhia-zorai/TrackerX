@@ -1,0 +1,29 @@
+# Directories to exclude from MEGA sync
+-d:node_modules
+-d:.next
+-d:dist-electron
+-d:dist-electron-v2
+-d:dist-electron-new
+-d:.electron
+-d:.git
+
+# Build artifacts (exclude)
+-:*.exe
+-:*.dmg
+-:*.AppImage
+-:*.deb
+-:*.msi
+-:*.snap
+-:*.rpm
+-:*.nsis.7z
+
+# Log files (exclude)
+-:*.log
+-:dev-server.log
+
+# Debug/test files (exclude)
+-:builder-debug.yml
+-:builder-effective-config.yaml
+-:region_test_results.txt
+-:REAL_TEST_PROOF.txt
+-:VERIFICATION_SUMMARY.md

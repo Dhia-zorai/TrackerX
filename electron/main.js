@@ -1,9 +1,8 @@
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
+const { fork } = require('child_process');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// Only needed for Squirrel installer, skip if not available
 try {
   if (require.resolve('electron-squirrel-startup') && require('electron-squirrel-startup')) {
     app.quit();
@@ -16,6 +15,16 @@ let mainWindow;
 let nextServer;
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const PORT = process.env.PORT || 3000;
+
+// Get the correct path to the standalone directory
+function getStandalonePath() {
+  if (app.isPackaged) {
+    // In packaged app, standalone is at resources/standalone
+    return path.join(process.resourcesPath, 'standalone');
+  }
+  // In development, it's at .next/standalone
+  return path.join(__dirname, '..', '.next', 'standalone');
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -31,19 +40,28 @@ function createWindow() {
     icon: path.join(__dirname, '../public/icon.png'),
     titleBarStyle: 'default',
     backgroundColor: '#0a0a0a',
-    show: false, // Don't show until ready
+    show: false,
   });
 
-  // Show window when ready to avoid flash
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
 
-  // Load the app
   const url = `http://localhost:${PORT}`;
-  mainWindow.loadURL(url);
+  
+  // Retry loading URL until server is ready
+  const loadWithRetry = (retries = 30) => {
+    mainWindow.loadURL(url).catch((err) => {
+      if (retries > 0) {
+        setTimeout(() => loadWithRetry(retries - 1), 500);
+      } else {
+        console.error('Failed to load URL after retries:', err);
+      }
+    });
+  };
+  
+  loadWithRetry();
 
-  // Open external links in browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http')) {
       shell.openExternal(url);
@@ -52,7 +70,6 @@ function createWindow() {
     return { action: 'allow' };
   });
 
-  // Open DevTools in development
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
@@ -65,37 +82,43 @@ function createWindow() {
 function startNextServer() {
   return new Promise((resolve, reject) => {
     if (isDev) {
-      // In development, assume Next.js dev server is already running
       resolve();
       return;
     }
 
-    // In production, start the Next.js server
-    const serverPath = path.join(__dirname, '../');
-    nextServer = spawn('node', ['node_modules/next/dist/bin/next', 'start', '-p', PORT.toString()], {
-      cwd: serverPath,
-      stdio: 'pipe',
-      shell: true,
+    const standaloneDir = getStandalonePath();
+    const serverScript = path.join(__dirname, 'server.js');
+    
+    console.log('Starting server with standaloneDir:', standaloneDir);
+    console.log('Server script:', serverScript);
+
+    nextServer = fork(serverScript, [PORT.toString(), standaloneDir], {
+      env: { ...process.env, PORT: PORT.toString() },
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
 
     nextServer.stdout.on('data', (data) => {
-      console.log(`Next.js: ${data}`);
-      if (data.toString().includes('Ready') || data.toString().includes('started')) {
+      console.log(`Server: ${data}`);
+    });
+
+    nextServer.stderr.on('data', (data) => {
+      console.error(`Server Error: ${data}`);
+    });
+
+    nextServer.on('message', (msg) => {
+      if (msg === 'ready') {
+        console.log('Server ready!');
         resolve();
       }
     });
 
-    nextServer.stderr.on('data', (data) => {
-      console.error(`Next.js Error: ${data}`);
-    });
-
     nextServer.on('error', (err) => {
-      console.error('Failed to start Next.js server:', err);
+      console.error('Failed to start server:', err);
       reject(err);
     });
 
-    // Fallback: resolve after timeout
-    setTimeout(resolve, 5000);
+    // Fallback timeout
+    setTimeout(resolve, 10000);
   });
 }
 

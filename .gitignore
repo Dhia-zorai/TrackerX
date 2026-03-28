@@ -40,12 +40,26 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# electron
-/dist-electron
+# electron build outputs
+/dist-electron/
+/dist-electron-*/
 *.exe
 *.dmg
 *.AppImage
 *.deb
 *.msi
+*.snap
+*.rpm
+*.nsis.7z
+builder-debug.yml
+builder-effective-config.yaml
 
-.megaignore
+# electron cache
+.electron/
+
+# test/debug logs
+*.log
+dev-server.log
+region_test_results.txt
+REAL_TEST_PROOF.txt
+VERIFICATION_SUMMARY.md
