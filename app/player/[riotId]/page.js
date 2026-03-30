@@ -11,6 +11,7 @@ import Dashboard from "@/components/Dashboard";
 import MatchHistory from "@/components/MatchHistory";
 import ShareCard from "@/components/ShareCard";
 import Toast from "@/components/ui/Toast";
+import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar } from "@/components/Charts";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ErrorState from "@/components/ui/ErrorState";
@@ -25,7 +26,7 @@ export default function PlayerPage({ params }) {
   const { gameName, tagLine } = decodeRiotIdFromUrl(resolvedParams.riotId);
 
   const { data: account, isLoading: accountLoading, error: accountError } = usePlayer(gameName, tagLine, region);
-  const { matches, matchDetailsLoading, matchListLoading, matchListError, hasMore, loadMore, loadingMore, refetch } = useMatches(
+  const { matches, matchDetailsLoading, matchListLoading, matchListError, hasMore, loadMore, loadingMore, refetch, isAutoLoading, totalLoadedMatches } = useMatches(
     account?.puuid,
     region,
     gameName,
@@ -45,8 +46,8 @@ export default function PlayerPage({ params }) {
     }
   }, [loading, matches.length]);
 
-  // Match type filter
-  const [filterMode, setFilterMode] = useState('all');
+  // Match type filter - default to competitive
+  const [filterMode, setFilterMode] = useState('competitive');
   const filteredMatches = useMemo(() => {
     if (filterMode === 'all') return matches;
     return matches.filter(m =>
@@ -231,9 +232,12 @@ export default function PlayerPage({ params }) {
       {/* Toast */}
       <Toast
         visible={showToast}
-        message="Stats are calculated from the matches currently loaded. Loading more matches will improve accuracy."
+        message="Stats are based on currently analyzed matches and will improve as more matches load."
         onDismiss={() => setShowToast(false)}
       />
+      
+      {/* Progress Indicator */}
+      <ProgressIndicator matchCount={totalLoadedMatches} isLoading={isAutoLoading} />
     </main>
   );
 }
