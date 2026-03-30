@@ -6,6 +6,8 @@ import StatCard from "@/components/StatCard";
 import PlayerBanner from "./PlayerBanner";
 import { aggregateStats, getAgentStats, capitalizeAgent } from "@/lib/utils";
 import { StatCardSkeleton } from "@/components/ui/Skeleton";
+import { AgentIcon } from "@/components/ui/AgentIcon";
+import { getAgentAsset } from "@/lib/assetMappings";
 
 export default function Dashboard({ account, region, matchStats, loading }) {
   const stats = useMemo(() => aggregateStats(matchStats), [matchStats]);
@@ -31,8 +33,16 @@ export default function Dashboard({ account, region, matchStats, loading }) {
       {!loading && topAgent && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
           className='glass-accent rounded-xl p-5 flex items-center gap-5'>
-          <div className='w-12 h-12 bg-[var(--accent-dim)] rounded-xl flex items-center justify-center'>
-            <User size={24} className='text-[var(--accent)]' />
+          <div className='w-12 h-12 bg-[var(--accent-dim)] rounded-xl flex items-center justify-center overflow-hidden'>
+            {getAgentAsset(topAgent.agentId) ? (
+              <AgentIcon
+                agentName={topAgent.agentId}
+                size={48}
+                className='rounded-xl object-cover'
+              />
+            ) : (
+              <User size={24} className='text-[var(--accent)]' />
+            )}
           </div>
           <div className='flex-1'>
             <p className='text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1'>Most Played Agent</p>

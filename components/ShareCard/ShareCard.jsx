@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { toPng } from "html-to-image";
 import { capitalizeAgent } from "@/lib/utils";
+import { AgentIcon } from "@/components/ui/AgentIcon";
 
 export default function ShareCard({ account, stats, agentStats }) {
   const cardRef = useRef(null);
@@ -100,13 +101,22 @@ export default function ShareCard({ account, stats, agentStats }) {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <div>
-              <p style={{ color: '#8899aa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
-                Top Agent
-              </p>
-              <p style={{ color: '#ecf0f1', fontSize: '15px', fontWeight: 'bold', margin: 0 }}>
-                {capitalizeAgent(topAgent.agentId)}
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '32px', height: '32px', flexShrink: 0 }}>
+                <AgentIcon
+                  agentName={topAgent.agentId}
+                  size={32}
+                  className='rounded'
+                />
+              </div>
+              <div>
+                <p style={{ color: '#8899aa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
+                  Top Agent
+                </p>
+                <p style={{ color: '#ecf0f1', fontSize: '15px', fontWeight: 'bold', margin: 0 }}>
+                  {capitalizeAgent(topAgent.agentId)}
+                </p>
+              </div>
             </div>
             <div style={{ display: 'flex', gap: '16px', textAlign: 'right' }}>
               <div>

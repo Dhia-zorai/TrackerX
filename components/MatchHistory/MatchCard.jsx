@@ -3,6 +3,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ArrowUp, ArrowDown } from "lucide-react";
 import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
+import { AgentIcon } from "@/components/ui/AgentIcon";
+import { MapImage } from "@/components/ui/MapImage";
 
 // Helper: Sort team by stat
 function getSortedTeam(team, sortBy, sortOrder) {
@@ -145,23 +147,45 @@ export default function MatchCard({ match, puuid }) {
         className='flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
         onClick={() => setExpanded(e => !e)}
       >
-        {/* Map block */}
+        {/* Map block - Enhanced with thumbnail */}
         <div
-          className='w-11 h-11 rounded-lg flex flex-col items-center justify-center shrink-0 border border-[var(--border)] self-center'
+          className='relative w-11 h-11 rounded-lg shrink-0 border border-[var(--border)] self-center overflow-hidden'
           style={{ background: accentBg }}
         >
-          <span className='text-[7px] font-semibold text-[var(--text-muted)] uppercase tracking-widest leading-none'>MAP</span>
-          <span className='text-[10px] font-bold text-[var(--text-primary)] capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
+          {/* Map image as background */}
+          <MapImage
+            mapName={mapName}
+            width={44}
+            height={44}
+            className='absolute inset-0 object-cover opacity-30'
+            showName={false}
+          />
+          
+          {/* Text overlay */}
+          <div className='relative z-10 flex flex-col items-center justify-center h-full'>
+            <span className='text-[7px] font-semibold text-[var(--text-muted)] uppercase tracking-widest leading-none'>MAP</span>
+            <span className='text-[10px] font-bold text-[var(--text-primary)] capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
+          </div>
         </div>
 
         {/* Middle: two stacked rows */}
         <div className='flex-1 min-w-0 flex flex-col justify-center gap-1.5'>
-          {/* Row 1: result chip + agent + mode */}
+          {/* Row 1: result chip + agent icon + agent name + mode */}
           <div className='flex items-center gap-2 min-w-0'>
             <ResultChip won={playerStats.won} drew={playerStats.drew} />
+            
+            {/* Agent icon */}
+            <AgentIcon
+              agentName={playerStats.agentId}
+              size={20}
+              className='rounded shrink-0'
+            />
+            
+            {/* Agent name */}
             <span className='text-xs font-semibold text-[var(--text-primary)] truncate'>
               {capitalizeAgent(playerStats.agentId) || 'Unknown'}
             </span>
+            
             <span className='text-xs text-[var(--text-secondary)] capitalize truncate hidden xs:inline'>
               {gameMode}
             </span>

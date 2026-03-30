@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "download:assets": "node scripts/download-assets.js",
     "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:prepare": "node scripts/prepare-standalone.js",
     "electron:build": "npm run build && npm run electron:prepare && electron-builder",
