@@ -237,7 +237,7 @@ export default function PlayerPage({ params }) {
       />
       
       {/* Progress Indicator */}
-      <ProgressIndicator matchCount={totalLoadedMatches} isLoading={isAutoLoading} />
+      <ProgressIndicator matchCount={filteredMatches.length} isLoading={isAutoLoading} />
     </main>
   );
 }

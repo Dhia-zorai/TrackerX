@@ -63,3 +63,6 @@ dev-server.log
 region_test_results.txt
 REAL_TEST_PROOF.txt
 VERIFICATION_SUMMARY.md
+
+# Windows reserved filenames
+nul

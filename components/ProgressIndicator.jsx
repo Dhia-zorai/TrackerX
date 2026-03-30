@@ -1,11 +1,38 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 export function ProgressIndicator({ matchCount, isLoading }) {
+  const [visible, setVisible] = useState(false);
+  const [hideTimer, setHideTimer] = useState(null);
+
+  useEffect(() => {
+    // Show indicator when loading or match count changes
+    if (isLoading || matchCount > 0) {
+      setVisible(true);
+      
+      // Clear any existing hide timer
+      if (hideTimer) {
+        clearTimeout(hideTimer);
+        setHideTimer(null);
+      }
+    }
+
+    // When loading finishes, hide after 3 seconds
+    if (!isLoading && matchCount > 0) {
+      const timer = setTimeout(() => {
+        setVisible(false);
+      }, 3000);
+      setHideTimer(timer);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, matchCount]);
+
   return (
     <AnimatePresence>
-      {matchCount > 0 && (
+      {visible && matchCount > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
