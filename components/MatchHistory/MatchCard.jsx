@@ -147,7 +147,7 @@ export default function MatchCard({ match, puuid }) {
         className='flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
         onClick={() => setExpanded(e => !e)}
       >
-        {/* Map block - Enhanced with thumbnail */}
+        {/* Map block - Enhanced with thumbnail and gradient overlay */}
         <div
           className='relative w-11 h-11 rounded-lg shrink-0 border border-[var(--border)] self-center overflow-hidden'
           style={{ background: accentBg }}
@@ -157,14 +157,22 @@ export default function MatchCard({ match, puuid }) {
             mapName={mapName}
             width={44}
             height={44}
-            className='absolute inset-0 object-cover opacity-30'
+            className='absolute inset-0 object-cover opacity-40'
             showName={false}
+          />
+          
+          {/* Dark gradient overlay for text contrast */}
+          <div 
+            className='absolute inset-0 z-[5]'
+            style={{ 
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)' 
+            }}
           />
           
           {/* Text overlay */}
           <div className='relative z-10 flex flex-col items-center justify-center h-full'>
-            <span className='text-[7px] font-semibold text-[var(--text-muted)] uppercase tracking-widest leading-none'>MAP</span>
-            <span className='text-[10px] font-bold text-[var(--text-primary)] capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
+            <span className='text-[7px] font-semibold text-white uppercase tracking-widest leading-none'>MAP</span>
+            <span className='text-[10px] font-bold text-white capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
           </div>
         </div>
 
