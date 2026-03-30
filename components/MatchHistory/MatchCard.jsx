@@ -157,7 +157,7 @@ export default function MatchCard({ match, puuid }) {
             mapName={mapName}
             width={44}
             height={44}
-            className='absolute inset-0 object-cover opacity-40'
+            className='absolute inset-0 object-cover opacity-100'
             showName={false}
           />
           
