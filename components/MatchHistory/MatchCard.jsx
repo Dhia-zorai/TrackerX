@@ -1,7 +1,7 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ChevronDown, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
 import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
 import { AgentIcon } from "@/components/ui/AgentIcon";
 import { MapImage } from "@/components/ui/MapImage";
@@ -78,31 +78,71 @@ function ScoreboardRow({ player, isHighlighted }) {
   );
 }
 
+// Fetch full match details for lazy loading
+async function fetchMatchDetails(matchId) {
+  const res = await fetch(`/api/riot/match-detail?matchId=${encodeURIComponent(matchId)}`);
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to fetch match details');
+  }
+  return res.json();
+}
+
 export default function MatchCard({ match, puuid }) {
   const [expanded, setExpanded] = useState(false);
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState('desc');
   
+  // Lazy loading state
+  const [fullMatchData, setFullMatchData] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  
   if (!match) return null;
 
-  const playerStats = extractPlayerStats(match, puuid);
+  // Use full match data if available, otherwise use original match
+  const activeMatch = fullMatchData || match;
+  
+  const playerStats = extractPlayerStats(activeMatch, puuid);
   if (!playerStats) return null;
 
-  const info = match.info || {};
+  const info = activeMatch.info || {};
   const mapName = info.mapId
     ? info.mapId.includes('/') ? info.mapId.split('/').pop() : info.mapId
     : 'Unknown';
   const gameMode = info.gameMode || 'Unrated';
   const timestamp = info.gameStartMillis || 0;
 
-  const teams = match.teams || [];
+  const teams = activeMatch.teams || [];
   const team0 = teams[0] || {};
   const team1 = teams[1] || {};
   const score = team0.roundsWon !== undefined ? team0.roundsWon + ' – ' + team1.roundsWon : '';
 
-  const allPlayers = match.players || [];
+  const allPlayers = activeMatch.players || [];
   const myTeam    = allPlayers.filter(p => p.teamId === playerStats.teamId);
   const enemyTeam = allPlayers.filter(p => p.teamId !== playerStats.teamId);
+  
+  // Check if we need to lazy-load (only 1 player = lifetime endpoint data)
+  const needsLazyLoad = allPlayers.length <= 1 && !fullMatchData;
+
+  // Lazy load full match details when expanding
+  useEffect(() => {
+    if (expanded && needsLazyLoad && !loadingDetails && !loadError && match.matchId) {
+      setLoadingDetails(true);
+      fetchMatchDetails(match.matchId)
+        .then(data => {
+          setFullMatchData(data);
+          setLoadError(null);
+        })
+        .catch(err => {
+          console.error('[MatchCard] Failed to load match details:', err.message);
+          setLoadError(err.message);
+        })
+        .finally(() => {
+          setLoadingDetails(false);
+        });
+    }
+  }, [expanded, needsLazyLoad, loadingDetails, loadError, match.matchId]);
 
   // Handle stat click: cycle through DESC → ASC → ORIGINAL
   function handleStatClick(statKey) {
@@ -135,6 +175,64 @@ export default function MatchCard({ match, puuid }) {
     : playerStats.won
       ? 'border-[var(--win)]'
       : 'border-[var(--loss)]';
+
+  // Render scoreboard content based on state
+  function renderScoreboardContent() {
+    // Loading state
+    if (loadingDetails) {
+      return (
+        <div className='flex items-center justify-center gap-2 py-4'>
+          <Loader2 size={16} className='animate-spin text-[var(--accent)]' />
+          <span className='text-xs text-[var(--text-muted)]'>Loading scoreboard...</span>
+        </div>
+      );
+    }
+    
+    // Error state
+    if (loadError) {
+      return (
+        <div className='text-center py-3'>
+          <p className='text-xs text-[var(--text-muted)]'>
+            Scoreboard unavailable
+          </p>
+        </div>
+      );
+    }
+    
+    // Full data available
+    if (allPlayers.length > 1) {
+      return (
+        <>
+          <div className='flex items-center gap-2 px-3 text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider'>
+            <span className='flex-1'>Player</span>
+            <div className='w-16 text-center flex justify-center'>
+              <StatButton label="K/D/A" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="kills" />
+            </div>
+            <div className='w-10 text-center flex justify-center'>
+              <StatButton label="ACS" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="acs" />
+            </div>
+          </div>
+          <div>
+            <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Your Team</p>
+            {sortedMyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={p.puuid === puuid} />)}
+          </div>
+          <div>
+            <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Enemy Team</p>
+            {sortedEnemyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={false} />)}
+          </div>
+        </>
+      );
+    }
+    
+    // No data and not loading - shouldn't happen but fallback
+    return (
+      <div className='text-center py-3'>
+        <p className='text-xs text-[var(--text-muted)]'>
+          Scoreboard unavailable
+        </p>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -240,23 +338,7 @@ export default function MatchCard({ match, puuid }) {
             className='overflow-hidden border-t border-[var(--border)]'
           >
             <div className='p-4 space-y-4'>
-              <div className='flex items-center gap-2 px-3 text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider'>
-                <span className='flex-1'>Player</span>
-                <div className='w-16 text-center flex justify-center'>
-                  <StatButton label="K/D/A" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="kills" />
-                </div>
-                <div className='w-10 text-center flex justify-center'>
-                  <StatButton label="ACS" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="acs" />
-                </div>
-              </div>
-              <div>
-                <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Your Team</p>
-                {sortedMyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={p.puuid === puuid} />)}
-              </div>
-              <div>
-                <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Enemy Team</p>
-                {sortedEnemyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={false} />)}
-              </div>
+              {renderScoreboardContent()}
             </div>
           </motion.div>
         )}
