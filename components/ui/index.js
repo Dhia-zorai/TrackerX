@@ -3,3 +3,4 @@ export { default as ErrorState } from "./ErrorState";
 export { default as ThemeToggle } from "./ThemeToggle";
 export { AgentIcon } from "./AgentIcon";
 export { MapImage } from "./MapImage";
+export { RankIcon } from "./RankIcon";
