@@ -9,7 +9,7 @@ import { StatCardSkeleton } from "@/components/ui/Skeleton";
 import { AgentIcon } from "@/components/ui/AgentIcon";
 import { getAgentAsset } from "@/lib/assetMappings";
 
-export default function Dashboard({ account, region, matchStats, loading }) {
+export default function Dashboard({ account, region, matchStats, matches, loading }) {
   const stats = useMemo(() => aggregateStats(matchStats), [matchStats]);
   const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
   const topAgent = agentStats[0];
@@ -23,7 +23,7 @@ export default function Dashboard({ account, region, matchStats, loading }) {
 
   return (
     <div className='space-y-6'>
-      <PlayerBanner account={account} region={region} />
+      <PlayerBanner account={account} region={region} matches={matches} />
       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
         {loading
           ? [...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)

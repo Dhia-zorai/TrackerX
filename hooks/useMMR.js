@@ -1,5 +1,7 @@
 "use client";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getCurrentRankFromMatches } from "@/lib/utils";
 
 async function fetchMMR({ puuid, gameName, tagLine, region }) {
   const params = puuid
@@ -12,9 +14,11 @@ async function fetchMMR({ puuid, gameName, tagLine, region }) {
 }
 
 // Pass either puuid or gameName+tagLine
-export function useMMR({ puuid, gameName, tagLine, region = "na" }) {
+// Optional: pass matches array for fallback when MMR endpoint returns unranked
+export function useMMR({ puuid, gameName, tagLine, region = "na", matches = [] }) {
   const enabled = Boolean(puuid || (gameName && tagLine));
-  return useQuery({
+  
+  const query = useQuery({
     queryKey: ["mmr", puuid || (gameName + "#" + tagLine), region],
     queryFn: () => fetchMMR({ puuid, gameName, tagLine, region }),
     enabled,
@@ -25,4 +29,31 @@ export function useMMR({ puuid, gameName, tagLine, region = "na" }) {
       return failCount < 2;
     },
   });
+
+  // If MMR endpoint failed or returned unranked, try fallback from matches
+  const data = useMemo(() => {
+    const mmr = query.data;
+    
+    // If we have valid rank from MMR endpoint, use it
+    if (mmr?.tier && mmr.tier > 0 && mmr.tierName !== "Unranked") {
+      return mmr;
+    }
+    
+    // Try fallback from matches
+    const matchRank = getCurrentRankFromMatches(matches, puuid);
+    
+    if (matchRank) {
+      return {
+        ...mmr,  // Keep peak rank and other data from MMR endpoint
+        tier: matchRank.tier,
+        tierName: matchRank.tierName,
+        rr: matchRank.rr,
+        fromMatches: true,  // Flag for UI to show "from last match"
+      };
+    }
+    
+    return mmr;
+  }, [query.data, matches, puuid]);
+
+  return { ...query, data };
 }

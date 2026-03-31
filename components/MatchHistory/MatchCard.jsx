@@ -97,37 +97,47 @@ export default function MatchCard({ match, puuid }) {
   const [fullMatchData, setFullMatchData] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadError, setLoadError] = useState(null);
-  
-  if (!match) return null;
 
   // Use full match data if available, otherwise use original match
   const activeMatch = fullMatchData || match;
   
-  const playerStats = extractPlayerStats(activeMatch, puuid);
-  if (!playerStats) return null;
+  // Extract player stats (may be null if match/puuid invalid)
+  const playerStats = useMemo(() => {
+    if (!match) return null;
+    return extractPlayerStats(activeMatch, puuid);
+  }, [activeMatch, puuid, match]);
 
-  const info = activeMatch.info || {};
-  const mapName = info.mapId
-    ? info.mapId.includes('/') ? info.mapId.split('/').pop() : info.mapId
-    : 'Unknown';
-  const gameMode = info.gameMode || 'Unrated';
-  const timestamp = info.gameStartMillis || 0;
+  // Derive match info
+  const { info, mapName, gameMode, timestamp, teams, allPlayers, myTeam, enemyTeam, needsLazyLoad } = useMemo(() => {
+    if (!match || !playerStats) {
+      return { info: {}, mapName: 'Unknown', gameMode: 'Unrated', timestamp: 0, teams: [], allPlayers: [], myTeam: [], enemyTeam: [], needsLazyLoad: false };
+    }
+    
+    const info = activeMatch.info || {};
+    const mapName = info.mapId
+      ? info.mapId.includes('/') ? info.mapId.split('/').pop() : info.mapId
+      : 'Unknown';
+    const gameMode = info.gameMode || 'Unrated';
+    const timestamp = info.gameStartMillis || 0;
 
-  const teams = activeMatch.teams || [];
+    const teams = activeMatch.teams || [];
+    const allPlayers = activeMatch.players || [];
+    const myTeam = allPlayers.filter(p => p.teamId === playerStats.teamId);
+    const enemyTeam = allPlayers.filter(p => p.teamId !== playerStats.teamId);
+    
+    // Check if we need to lazy-load (only 1 player = lifetime endpoint data)
+    const needsLazyLoad = allPlayers.length <= 1 && !fullMatchData;
+    
+    return { info, mapName, gameMode, timestamp, teams, allPlayers, myTeam, enemyTeam, needsLazyLoad };
+  }, [match, playerStats, activeMatch, fullMatchData]);
+
   const team0 = teams[0] || {};
   const team1 = teams[1] || {};
   const score = team0.roundsWon !== undefined ? team0.roundsWon + ' – ' + team1.roundsWon : '';
 
-  const allPlayers = activeMatch.players || [];
-  const myTeam    = allPlayers.filter(p => p.teamId === playerStats.teamId);
-  const enemyTeam = allPlayers.filter(p => p.teamId !== playerStats.teamId);
-  
-  // Check if we need to lazy-load (only 1 player = lifetime endpoint data)
-  const needsLazyLoad = allPlayers.length <= 1 && !fullMatchData;
-
   // Lazy load full match details when expanding
   useEffect(() => {
-    if (expanded && needsLazyLoad && !loadingDetails && !loadError && match.matchId) {
+    if (expanded && needsLazyLoad && !loadingDetails && !loadError && match?.matchId) {
       setLoadingDetails(true);
       fetchMatchDetails(match.matchId)
         .then(data => {
@@ -142,7 +152,7 @@ export default function MatchCard({ match, puuid }) {
           setLoadingDetails(false);
         });
     }
-  }, [expanded, needsLazyLoad, loadingDetails, loadError, match.matchId]);
+  }, [expanded, needsLazyLoad, loadingDetails, loadError, match?.matchId]);
 
   // Handle stat click: cycle through DESC → ASC → ORIGINAL
   function handleStatClick(statKey) {
@@ -163,6 +173,9 @@ export default function MatchCard({ match, puuid }) {
   // Get sorted teams
   const sortedMyTeam = useMemo(() => getSortedTeam(myTeam, sortBy, sortOrder), [myTeam, sortBy, sortOrder]);
   const sortedEnemyTeam = useMemo(() => getSortedTeam(enemyTeam, sortBy, sortOrder), [enemyTeam, sortBy, sortOrder]);
+
+  // Early return AFTER all hooks
+  if (!match || !playerStats) return null;
 
   const accentBg = playerStats.drew
     ? 'var(--draw-dim)'
@@ -239,6 +252,7 @@ export default function MatchCard({ match, puuid }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className={'glass rounded-xl overflow-hidden border-l-4 ' + borderColor}
+      style={{ background: accentBg }}
     >
       {/* Main row */}
       <div
@@ -319,6 +333,22 @@ export default function MatchCard({ match, puuid }) {
           <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none'>
             <span className='text-[var(--text-primary)] font-medium'>{playerStats.hsPct.toFixed(0)}%</span> HS
           </p>
+          {/* RR change for competitive matches */}
+          {gameMode.toLowerCase() === 'competitive' && (
+            <p className={`text-[10px] tabular-nums leading-none font-medium ${
+              playerStats.mmrChange == null
+                ? 'text-[var(--text-muted)]'
+                : playerStats.mmrChange > 0
+                  ? 'text-[var(--win)]'
+                  : playerStats.mmrChange < 0
+                    ? 'text-[var(--loss)]'
+                    : 'text-[var(--text-secondary)]'
+            }`}>
+              {playerStats.mmrChange == null
+                ? 'RR N/A'
+                : `${playerStats.mmrChange > 0 ? '+' : ''}${playerStats.mmrChange} RR`}
+            </p>
+          )}
         </div>
 
         <ChevronDown

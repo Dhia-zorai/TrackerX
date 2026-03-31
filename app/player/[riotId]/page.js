@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Crosshair, Download } from "lucide-react";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useMatches } from "@/hooks/useMatches";
-import { useMMR } from "@/hooks/useMMR";
 import Dashboard from "@/components/Dashboard";
 import MatchHistory from "@/components/MatchHistory";
 import ShareCard from "@/components/ShareCard";
@@ -32,7 +31,6 @@ export default function PlayerPage({ params }) {
     gameName,
     tagLine
   );
-  const { data: mmr } = useMMR({ puuid: account?.puuid, region });
 
   const loading = matchListLoading || matchDetailsLoading;
 
@@ -63,10 +61,8 @@ export default function PlayerPage({ params }) {
   const aggregated = useMemo(() => aggregateStats(matchStats), [matchStats]);
   const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
 
-  // Derive rank tier name for PerformanceRadar (strip number e.g. "Gold 2" -> "Gold")
-  const rankTier = mmr?.tierName
-    ? mmr.tierName.replace(/\s+\d+$/, "").trim()
-    : "Gold";
+  // Derive rank tier name for PerformanceRadar - default to "Gold" if no rank data
+  const rankTier = "Gold";
 
   function handleExport() {
     exportFullJSON(account, region, filteredMatches, account?.puuid, aggregated, agentStats);
@@ -110,6 +106,7 @@ export default function PlayerPage({ params }) {
             account={account}
             region={region}
             matchStats={matchStats}
+            matches={matches}
             loading={loading}
           />
 

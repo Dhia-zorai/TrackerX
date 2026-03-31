@@ -59,9 +59,11 @@ function RankBadge({ mmr, loading }) {
         <span className="text-xs font-bold" style={{ color }}>
           {mmr.tierName}
         </span>
-        <span className="text-xs text-[var(--text-secondary)] tabular-nums">
-          {mmr.rr} RR
-        </span>
+        {mmr.rr != null && (
+          <span className="text-xs text-[var(--text-secondary)] tabular-nums">
+            {mmr.rr} RR
+          </span>
+        )}
         {mmr.mmrChange != null && (
           <span
             className={
@@ -71,6 +73,11 @@ function RankBadge({ mmr, loading }) {
           >
             {mmr.mmrChange >= 0 ? "+" : ""}
             {mmr.mmrChange}
+          </span>
+        )}
+        {mmr.fromMatches && (
+          <span className="text-[9px] text-[var(--text-secondary)] opacity-60">
+            from last match
           </span>
         )}
       </div>
@@ -110,15 +117,16 @@ function RankBadge({ mmr, loading }) {
   return null;
 }
 
-export default function PlayerBanner({ account, region }) {
-  if (!account) return null;
-  const { gameName, tagLine, puuid } = account;
+export default function PlayerBanner({ account, region, matches = [] }) {
+  const { gameName, tagLine, puuid } = account || {};
   // Handle both Riot API (accountLevel) and Henrik API (account_level) shapes
-  const level = account.account_level || account.accountLevel || 0;
+  const level = account?.account_level || account?.accountLevel || 0;
   const initials = gameName ? gameName.slice(0, 2).toUpperCase() : "??";
   const gradient = getAvatarGradient(gameName || "");
 
-  const { data: mmr, isLoading: mmrLoading } = useMMR({ puuid, region });
+  const { data: mmr, isLoading: mmrLoading } = useMMR({ puuid, region, matches });
+
+  if (!account) return null;
 
   return (
     <motion.div

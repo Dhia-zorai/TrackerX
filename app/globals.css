@@ -35,9 +35,9 @@
   --win:   #34d399;
   --loss:  #f87171;
   --draw:  #fbbf24;
-  --win-dim:  rgba(52, 211, 153, 0.12);
-  --loss-dim: rgba(248, 113, 113, 0.12);
-  --draw-dim: rgba(251, 191, 36, 0.12);
+  --win-dim:  rgba(52, 211, 153, 0.25);
+  --loss-dim: rgba(248, 113, 113, 0.25);
+  --draw-dim: rgba(251, 191, 36, 0.22);
 
   /* Utility */
   --radius-sm: 8px;
@@ -71,12 +71,12 @@
   --border-accent:  rgba(109, 72, 245, 0.18);
   --border-subtle:  rgba(0, 0, 0, 0.035);
 
-  --win:   #059669;
-  --loss:  #dc2626;
-  --draw:  #d97706;
-  --win-dim:  rgba(5, 150, 105, 0.10);
-  --loss-dim: rgba(220, 38, 38, 0.10);
-  --draw-dim: rgba(217, 119, 6, 0.10);
+  --win:   #10b981;
+  --loss:  #ef4444;
+  --draw:  #f59e0b;
+  --win-dim:  rgba(16, 185, 129, 0.22);
+  --loss-dim: rgba(239, 68, 68, 0.22);
+  --draw-dim: rgba(245, 158, 11, 0.18);
 }
 
 /* ─── Tailwind Theme Bridge ──────────────────────────────────────────────── */
