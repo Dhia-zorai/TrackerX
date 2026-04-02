@@ -12,7 +12,8 @@ export default async function AdminPage({ params }) {
   }
   
   // Set admin cookie
-  cookies().set('trackerx_admin', process.env.ADMIN_COOKIE_SECRET, {
+  const cookieStore = await cookies();
+  cookieStore.set('trackerx_admin', process.env.ADMIN_COOKIE_SECRET, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
