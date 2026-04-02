@@ -28,7 +28,7 @@ export default function PlayerPage({ params }) {
   const [filterMode, setFilterMode] = useState('competitive');
 
   const { data: account, isLoading: accountLoading, error: accountError } = usePlayer(gameName, tagLine, region);
-  const { matches, matchDetailsLoading, matchListLoading, matchListError, hasMore, loadMore, loadingMore, refetch, isAutoLoading, totalLoadedMatches } = useMatches(
+  const { matches, matchListLoading, matchListError, hasMore, loadMore, loadingMore, refetch, isAutoLoading, totalLoadedMatches } = useMatches(
     account?.puuid,
     region,
     gameName,
@@ -36,7 +36,7 @@ export default function PlayerPage({ params }) {
     filterMode
   );
 
-  const loading = matchListLoading || matchDetailsLoading;
+  const loading = matchListLoading;
 
   // Toast — fire once when first batch of matches loads
   const [showToast, setShowToast] = useState(false);

@@ -44,35 +44,12 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
   // Henrik path: full match objects in data.matches
   const baseMatches = useMemo(() => matchesQuery.data?.matches || [], [matchesQuery.data]);
 
-  // Riot fallback path: only IDs in data.history
-  const riotIds = (matchesQuery.data?.history || []).map(h => h.matchId);
-
-  const riotDetailQuery = useQuery({
-    queryKey: ["matchDetails", riotIds.join(","), region],
-    queryFn: async () => {
-      const results = [];
-      for (let i = 0; i < riotIds.length; i += 5) {
-        const batch = riotIds.slice(i, i + 5);
-        const settled = await Promise.allSettled(
-          batch.map(matchId => fetchMatchDetail({ matchId, region }))
-        );
-        results.push(...settled.map(r => r.status === "fulfilled" ? r.value : null));
-      }
-      return results;
-    },
-    enabled: source === "riot_ids" && riotIds.length > 0,
-  });
-
-  const isHenrik = source === "henrik";
-
   // All matches = base page 0 + any lazily loaded extra pages
-  const allMatches = isHenrik
-    ? [...baseMatches, ...extraMatches]
-    : (riotDetailQuery.data || []);
+  const allMatches = [...baseMatches, ...extraMatches];
 
-  const hasMore = isHenrik
-    ? (page === 0 ? (matchesQuery.data?.hasMore ?? baseMatches.length >= 10) : hasMoreState)
-    : riotIds.length > allMatches.length;
+  const hasMore = page === 0
+    ? (matchesQuery.data?.hasMore ?? baseMatches.length >= 10)
+    : hasMoreState;
 
   const loadMore = useCallback(async () => {
     if (!puuid || loadingMore) return;
@@ -81,7 +58,6 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
     try {
       const data = await fetchMatchPage({ puuid, region, page: nextPage, name, tag, mode });
       const newMatches = data?.matches || [];
-      console.log(`[useMatches] loadMore page=${nextPage} got ${newMatches.length} matches`);
       setExtraMatches(prev => {
         const existingIds = new Set([
           ...baseMatches.map(m => m.matchId),
@@ -118,7 +94,6 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
               ...prev.map(m => m.matchId),
             ]);
             const deduped = newMatches.filter(m => m.matchId && !existingIds.has(m.matchId));
-            console.log(`[useMatches] auto-load page 1: ${deduped.length} new matches`);
             return [...prev, ...deduped];
           });
           
@@ -150,7 +125,6 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
   return {
     matches: allMatches,
     matchListLoading: matchesQuery.isLoading,
-    matchDetailsLoading: riotDetailQuery.isLoading,
     matchListError: matchesQuery.error,
     hasMore,
     loadMore,
