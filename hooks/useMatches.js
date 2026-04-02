@@ -1,55 +1,56 @@
-"use client";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useCallback, useEffect, useRef } from "react";
 
-async function fetchMatchPage({ puuid, region, page, name, tag }) {
-  const params = { puuid, region, count: "10", page: String(page) };
-  // name+tag required for page > 0 (lifetime endpoint)
-  if (page > 0 && name && tag) {
-    params.name = name;
-    params.tag = tag;
+async function fetchMatchPage({ puuid, region, page = 0, name, tag }) {
+  let url = `/api/riot/matches?puuid=${puuid}&region=${region}&page=${page}&count=10`;
+  if (name && tag) {
+    url += `&name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}`;
   }
-  const res = await fetch(
-    "/api/riot/matches?" + new URLSearchParams(params)
-  );
+  // Mode flag only applicable to page > 0 in backend, but we can pass it anyway
+  url += `&mode=competitive`;
+
+  const res = await fetch(url);
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Failed to fetch matches");
+  if (!res.ok) {
+    throw Object.assign(new Error(data.error || "Failed to fetch match page"), { status: res.status });
+  }
   return data;
 }
 
 async function fetchMatchDetail({ matchId, region }) {
-  const res = await fetch(
-    "/api/riot/match?" + new URLSearchParams({ matchId, region })
-  );
+  const res = await fetch(`/api/riot/match?matchId=${encodeURIComponent(matchId)}&region=${region}`);
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Failed to fetch match");
+  if (!res.ok) {
+    throw Object.assign(new Error(data.error || "Failed to fetch match details"), { status: res.status });
+  }
   return data;
 }
 
-export function useMatches(puuid, region = "na", name = "", tag = "") {
-  const [page, setPage] = useState(0);
+export function useMatches(puuid, region = "na", name, tag) {
   const [extraMatches, setExtraMatches] = useState([]);
+  const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
-  // Track hasMore explicitly from API responses — avoids stale-closure inference bugs
   const [hasMoreState, setHasMoreState] = useState(true);
-  
-  // Auto-load tracking
   const [isAutoLoading, setIsAutoLoading] = useState(false);
-  const autoLoadPageRef = useRef(0);
+
   const autoLoadStartedRef = useRef(false);
 
-  // Initial fetch — page 0 only
+  // Initial fetch (Page 0)
   const matchesQuery = useQuery({
-    queryKey: ["matches", puuid, region],
-    queryFn: () => fetchMatchPage({ puuid, region, page: 0 }),
-    enabled: Boolean(puuid),
+    queryKey: ["matches", puuid, region, 0],
+    queryFn: () => fetchMatchPage({ puuid, region, page: 0, name, tag }),
+    enabled: !!puuid,
     staleTime: 5 * 60 * 1000,
+    retry: (failCount, err) => {
+      if (err?.status === 401 || err?.status === 404) return false;
+      return failCount < 2;
+    },
   });
 
   const source = matchesQuery.data?.source;
 
   // Henrik path: full match objects in data.matches
-  const baseMatches = matchesQuery.data?.matches || [];
+  const baseMatches = useMemo(() => matchesQuery.data?.matches || [], [matchesQuery.data]);
 
   // Riot fallback path: only IDs in data.history
   const riotIds = (matchesQuery.data?.history || []).map(h => h.matchId);
@@ -77,8 +78,6 @@ export function useMatches(puuid, region = "na", name = "", tag = "") {
     ? [...baseMatches, ...extraMatches]
     : (riotDetailQuery.data || []);
 
-  // For page 0, derive hasMore from the API's own hasMore field.
-  // For subsequent pages, hasMoreState is set explicitly after each loadMore response.
   const hasMore = isHenrik
     ? (page === 0 ? (matchesQuery.data?.hasMore ?? baseMatches.length >= 10) : hasMoreState)
     : riotIds.length > allMatches.length;
@@ -97,10 +96,8 @@ export function useMatches(puuid, region = "na", name = "", tag = "") {
           ...prev.map(m => m.matchId),
         ]);
         const deduped = newMatches.filter(m => m.matchId && !existingIds.has(m.matchId));
-        console.log(`[useMatches] deduped=${deduped.length} (from ${newMatches.length} new, ${existingIds.size} existing)`);
         return [...prev, ...deduped];
       });
-      // Set hasMore directly from what the API told us
       setHasMoreState(data?.hasMore ?? newMatches.length >= 10);
       setPage(nextPage);
     } catch (e) {
@@ -112,83 +109,67 @@ export function useMatches(puuid, region = "na", name = "", tag = "") {
 
   // Auto-load additional pages after initial page 0 arrives
   useEffect(() => {
-    if (!matchesQuery.isLoading && baseMatches.length > 0 && !autoLoadStartedRef.current && puuid) {
+    if (!matchesQuery.isLoading && baseMatches.length > 0 && !autoLoadStartedRef.current && puuid && isHenrik) {
       autoLoadStartedRef.current = true;
       
-      // Trigger auto-load for pages 1-4 (40 more matches for 50 total)
+      // Trigger auto-load for EXACTLY ONE PAGE (page 1) in competitive mode
       const autoLoad = async () => {
         setIsAutoLoading(true);
         try {
-          for (let i = 1; i <= 4; i++) {
-            // Check if we should continue
-            if (!autoLoadStartedRef.current) break;
-            
-            try {
-              console.log(`[useMatches] auto-loading page ${i}...`);
-              const data = await fetchMatchPage({ puuid, region, page: i, name, tag });
-              const newMatches = data?.matches || [];
-              
-              setExtraMatches(prev => {
-                const existingIds = new Set([
-                  ...baseMatches.map(m => m.matchId),
-                  ...prev.map(m => m.matchId),
-                ]);
-                const deduped = newMatches.filter(m => m.matchId && !existingIds.has(m.matchId));
-                console.log(`[useMatches] auto-load page ${i}: ${deduped.length} new matches`);
-                return [...prev, ...deduped];
-              });
-              
-              setPage(i);
-              setHasMoreState(data?.hasMore ?? newMatches.length >= 10);
-              
-              // Only continue if there are more matches and hasMore is true
-              if (newMatches.length < 10 || !data?.hasMore) {
-                console.log(`[useMatches] auto-load stopping: no more matches available`);
-                break;
-              }
-              
-              // Small delay before next page to avoid hammering API
-              await new Promise(resolve => setTimeout(resolve, 300));
-            } catch (err) {
-              console.error(`[useMatches] auto-load page ${i} failed:`, err.message);
-              break;
-            }
-          }
+          console.log(`[useMatches] auto-loading page 1...`);
+          const data = await fetchMatchPage({ puuid, region, page: 1, name, tag });
+          const newMatches = data?.matches || [];
+          
+          setExtraMatches(prev => {
+            const existingIds = new Set([
+              ...baseMatches.map(m => m.matchId),
+              ...prev.map(m => m.matchId),
+            ]);
+            const deduped = newMatches.filter(m => m.matchId && !existingIds.has(m.matchId));
+            console.log(`[useMatches] auto-load page 1: ${deduped.length} new matches`);
+            return [...prev, ...deduped];
+          });
+          
+          setPage(1);
+          setHasMoreState(data?.hasMore ?? newMatches.length >= 10);
+        } catch (e) {
+          console.error("[useMatches] auto-load failed:", e.message);
         } finally {
           setIsAutoLoading(false);
         }
       };
       
-      autoLoad();
+      // Give the UI a moment to render before firing background requests
+      setTimeout(() => {
+        autoLoad();
+      }, 1500);
     }
-  }, [matchesQuery.isLoading, baseMatches, puuid, region, name, tag]);
+  }, [matchesQuery.isLoading, baseMatches, puuid, region, name, tag, isHenrik]);
 
-  const matchListLoading = matchesQuery.isLoading;
-  const matchDetailsLoading = !isHenrik && riotDetailQuery.isLoading;
-  
-  // Calculate total matches loaded (base + extra)
-  const totalLoadedMatches = isHenrik ? baseMatches.length + extraMatches.length : allMatches.length;
+  // Reset extra matches when puuid changes
+  useEffect(() => {
+    setExtraMatches([]);
+    setPage(0);
+    setHasMoreState(true);
+    setIsAutoLoading(false);
+    autoLoadStartedRef.current = false;
+  }, [puuid, region]);
 
   return {
-    matchListLoading,
-    matchListError: matchesQuery.error,
-    matchDetailsLoading,
-    matchDetailsError: riotDetailQuery.error,
     matches: allMatches,
-    matchIds: isHenrik ? allMatches.map(m => m.matchId) : riotIds,
-    loadMore,
+    matchListLoading: matchesQuery.isLoading,
+    matchDetailsLoading: riotDetailQuery.isLoading,
+    matchListError: matchesQuery.error,
     hasMore,
+    loadMore,
     loadingMore,
     refetch: () => {
       setExtraMatches([]);
       setPage(0);
-      setHasMoreState(true);
       autoLoadStartedRef.current = false;
       matchesQuery.refetch();
     },
-    source,
-    // New: auto-load progress
     isAutoLoading,
-    totalLoadedMatches,
+    totalLoadedMatches: allMatches.length
   };
 }

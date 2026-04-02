@@ -21,6 +21,7 @@
     "electron:build:all": "npm run build && npm run electron:prepare && electron-builder --win --mac --linux"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "@tanstack/react-query": "^5.90.21",
     "framer-motion": "^12.36.0",
     "html-to-image": "^1.11.13",
@@ -56,7 +57,9 @@
       {
         "from": ".next/standalone",
         "to": "standalone",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {

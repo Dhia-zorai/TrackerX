@@ -44,7 +44,7 @@ export function ProgressIndicator({ matchCount, isLoading }) {
             <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
           )}
           <span className="text-sm font-medium text-blue-300">
-            Analyzing {matchCount} matches{isLoading ? '…' : ''}
+            {isLoading ? 'Loading remaining matches...' : `Analyzed ${matchCount} matches`}
           </span>
         </motion.div>
       )}

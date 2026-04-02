@@ -21,7 +21,26 @@
 
 ## Overview
 
-TrackerX is built for VALORANT players who want fast, accurate insight into their game. It pulls match data from the Henrik API, normalizes everything into a consistent shape, and presents it through clean charts, a live dashboard, and detailed match history with no bloat.
+TrackerX is built for VALORANT players who want fast, accurate insight into their game. It pulls match data from the Henrik API, normalizes everything into a consistent shape, caches it aggressively using Supabase to prevent rate limiting, and presents it through clean charts, a live dashboard, and detailed match history with no bloat.
+
+## Setup & Environment
+
+To run TrackerX locally or deploy it, you need to set up the following environment variables in your `.env.local` file:
+
+```env
+# Riot Games API (Optional fallback)
+RIOT_API_KEY=RGAPI-your-key-here
+
+# HenrikDev API (Required for match data)
+HENRIK_API_KEY=HDEV-your-key-here
+
+# Supabase (Required for caching and advanced stats)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+You must also apply the database schema found in `supabase/migrations/001_initial_schema.sql` to your Supabase project to enable caching.
 
 ## Desktop App (Electron)
 
@@ -50,10 +69,10 @@ Get the latest desktop builds from **GitHub Releases**:
 | **Match History**         | Expandable match cards with full scoreboard, map, agent, and round count. Lazy-loads additional pages on demand.                                                          |
 | **Match Type Filter**     | Toggle between All Modes and Competitive to isolate ranked performance. Stats and charts update instantly without refetching.                                             |
 | **Performance Charts**    | ACS trend line, agent win rate bar chart, agent distribution pie chart, and a performance radar benchmarked against your rank tier.                                       |
-| **AI-Ready JSON Export**  | Exports a single structured JSON covering overall stats, per-agent breakdown, per-map breakdown, and full match history. Formatted for direct use with AI analysis tools. |
+| **Data Export**         | Exports a structured JSON covering overall stats, per-agent breakdown, per-map breakdown, and full match history including **Advanced Stats** (KAST%, First Bloods, Damage Per Round). Formatted for direct use with AI analysis tools. |
 | **Share Card**            | Generates a downloadable PNG stat card with your top 6 stats and top agent spotlight. Always reflects the current match pool.                                             |
 | **Dark / Light Mode**     | Full theme support. Preference is persistent across sessions.                                                                                                             |
-| **Account Cache**         | Account lookups are cached in localStorage with an 8-hour TTL to avoid redundant network requests.                                                                        |
+| **Advanced Caching**      | Uses **Supabase** as a robust, permanent caching layer for match histories and raw API payloads, heavily mitigating Henrik API rate limits and providing instantaneous load times. |
 
 ---
 
