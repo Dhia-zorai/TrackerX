@@ -40,7 +40,7 @@ function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) 
       className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border flex flex-col items-center gap-1.5 ' +
         (isActive 
           ? 'bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)] shadow-sm' 
-          : 'border-[var(--text-muted)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:border-[var(--accent)] hover:text-[var(--text-primary)] hover:shadow-sm'
+          : 'border-[var(--border)] text-[var(--text-secondary)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-sm'
         )}
       title="Click to sort"
     >
@@ -201,7 +201,7 @@ export default function MatchCard({ match, puuid }) {
       return (
         <div className='flex items-center justify-center gap-2 py-4'>
           <Loader2 size={16} className='animate-spin text-[var(--accent)]' />
-          <span className='text-xs text-[var(--text-muted)]'>Loading scoreboard...</span>
+          <span className='text-xs text-[var(--text-secondary)]'>Loading scoreboard...</span>
         </div>
       );
     }
@@ -210,7 +210,7 @@ export default function MatchCard({ match, puuid }) {
     if (loadError) {
       return (
         <div className='text-center py-3'>
-          <p className='text-xs text-[var(--text-muted)]'>
+          <p className='text-xs text-[var(--text-secondary)]'>
             Scoreboard unavailable
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function MatchCard({ match, puuid }) {
     if (allPlayers.length > 1) {
       return (
         <>
-          <div className='flex items-center gap-2 px-3 text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider'>
+          <div className='flex items-center gap-2 px-3 text-[10px] text-[var(--text-secondary)] font-semibold uppercase tracking-wider'>
             <span className='flex-1'>Player</span>
             <div className='w-16 text-center flex justify-center'>
               <StatButton label="K/D/A" onStatClick={handleStatClick} currentSort={sortBy} currentOrder={sortOrder} statKey="kills" />
@@ -245,7 +245,7 @@ export default function MatchCard({ match, puuid }) {
     // No data and not loading - shouldn't happen but fallback
     return (
       <div className='text-center py-3'>
-        <p className='text-xs text-[var(--text-muted)]'>
+        <p className='text-xs text-[var(--text-secondary)]'>
           Scoreboard unavailable
         </p>
       </div>

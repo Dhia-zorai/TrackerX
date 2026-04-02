@@ -196,7 +196,7 @@ export default function PlayerBanner({ account, region, matches = [] }) {
               <Copy size={14} className="text-[var(--text-muted)] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             )}
           </button>
-          <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-muted)]">
+          <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-secondary)]">
             <span className="flex items-center gap-1 uppercase tracking-wide font-medium">
               <MapPin size={11} />
               {region}
