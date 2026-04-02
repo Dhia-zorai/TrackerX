@@ -16,8 +16,10 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
 import { exportFullJSON } from "@/lib/exportData";
+import { OptOutBanner } from "@/components/OptOutBanner";
+import { OptedOutCard } from "@/components/OptedOutCard";
 
-export default function PlayerPage({ params }) {
+export default function PlayerPage({ params, isAdmin = false }) {
   const resolvedParams = use(params);
   const searchParams = useSearchParams();
   const region = searchParams.get('region') || 'na';
@@ -37,6 +39,10 @@ export default function PlayerPage({ params }) {
   );
 
   const loading = matchListLoading;
+
+  // Check if player has opted out
+  const isOptedOut = account?.optedOut === true;
+  const riotId = `${gameName}#${tagLine}`;
 
   // Toast — fire once when first batch of matches loads
   const [showToast, setShowToast] = useState(false);
@@ -100,8 +106,15 @@ export default function PlayerPage({ params }) {
          </div>
       </div>
 
+      {/* Opt-out banner - only show if not opted out and not admin */}
+      {account && !isOptedOut && !isAdmin && (
+        <OptOutBanner puuid={account.puuid} riotId={riotId} />
+      )}
+
       {accountLoading ? (
         <div className='glass-accent rounded-xl p-6 animate-pulse h-28' />
+      ) : isOptedOut ? (
+        <OptedOutCard riotId={riotId} />
       ) : (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='space-y-8'>
           {/* Dashboard (banner + stat cards) */}
