@@ -14,15 +14,12 @@ export default async function handler(req, res) {
   const cached = getCache(cacheKey);
   if (cached) return res.status(200).json(cached);
 
-  if (process.env.NODE_ENV !== 'production') console.log(`[Matches] puuid=${puuid} region=${region} size=${size} page=${pageNum} name=${name} tag=${tag} mode=${mode}`);
-
   // Page 0: use Henrik v3 (full match objects with all players)
   if (pageNum === 0) {
     try {
       const raw = await henrikGetMatchesByPuuid(puuid, region, size, mode);
       const henrikMatches = Array.isArray(raw) ? raw : [];
       const normalized = henrikMatches.map(normalizeHenrikMatch).filter(Boolean);
-      if (process.env.NODE_ENV !== 'production') console.log(`[Matches] Henrik v3 returned ${normalized.length} matches (page 0)`);
       const result = {
         matches: normalized,
         source: "henrik",
@@ -34,7 +31,6 @@ export default async function handler(req, res) {
       setCache(cacheKey, result, 300);
       return res.status(200).json(result);
     } catch (err) {
-      if (process.env.NODE_ENV !== 'production') console.error(`[Matches] Henrik v3 failed: ${err.message}`);
       return res.status(200).json({
         matches: [],
         history: [],
@@ -53,12 +49,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Lifetime endpoint is 1-indexed; pageNum here is 0-indexed so add 1
     const lifetimePage = pageNum + 1;
     const raw = await henrikGetLifetimeMatches(name, tag, region, lifetimePage, size, mode);
-    // Lifetime endpoint wraps in { data: [...] } or returns array directly
     const entries = Array.isArray(raw) ? raw : (raw?.data || raw || []);
-    if (process.env.NODE_ENV !== 'production') console.log(`[Matches] Henrik lifetime returned ${entries.length} entries (page ${pageNum})`);
     
     const normalized = entries.map(entry => {
       if (entry && entry.metadata) {
@@ -80,7 +73,6 @@ export default async function handler(req, res) {
     setCache(cacheKey, result, 300);
     return res.status(200).json(result);
   } catch (err) {
-    if (process.env.NODE_ENV !== 'production') console.error(`[Matches] Henrik lifetime failed: ${err.message}`);
     return res.status(200).json({
       matches: [],
       source: "error",

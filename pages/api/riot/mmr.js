@@ -46,7 +46,6 @@ export default async function handler(req, res) {
   } catch (err) {
     if (err.status === 404) return res.status(404).json({ error: "MMR data not found — player may be unranked" });
     if (err.status === 401) return res.status(401).json({ error: "Henrik API key required. Add HENRIK_API_KEY to .env.local" });
-    console.error("MMR API error:", err.message);
     return res.status(502).json({ error: "Could not fetch rank data" });
   }
 }
