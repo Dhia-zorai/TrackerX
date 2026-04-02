@@ -77,7 +77,7 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
 
   // Auto-load additional pages after initial page 0 arrives
   useEffect(() => {
-    if (!matchesQuery.isLoading && baseMatches.length > 0 && !autoLoadStartedRef.current && puuid && isHenrik) {
+    if (!matchesQuery.isLoading && baseMatches.length > 0 && !autoLoadStartedRef.current && puuid) {
       autoLoadStartedRef.current = true;
       
       // Trigger auto-load for EXACTLY ONE PAGE (page 1)
