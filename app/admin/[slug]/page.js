@@ -3,8 +3,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { notFound } from 'next/navigation';
 
-export default function AdminPage({ params }) {
-  const { slug } = params;
+export default async function AdminPage({ params }) {
+  const { slug } = await params;
   
   // If slug doesn't match, return 404 immediately - no UI rendered, no indication
   if (slug !== process.env.ADMIN_SLUG) {
