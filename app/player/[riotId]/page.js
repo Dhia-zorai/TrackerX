@@ -48,8 +48,13 @@ export default function PlayerPage({ params }) {
     }
   }, [loading, matches.length]);
 
-  // Pass matches directly down, filter logic is handled by server now
-  const filteredMatches = matches;
+  // Client-side filtering fallback (in case API returns unfiltered matches)
+  const filteredMatches = useMemo(() => {
+    if (filterMode === 'all') return matches;
+    return matches.filter(m =>
+      (m.info?.gameMode || m.queue || m.mode || '').toLowerCase() === filterMode
+    );
+  }, [matches, filterMode]);
 
   const matchStats = useMemo(() => {
     if (!account?.puuid || !filteredMatches) return [];
