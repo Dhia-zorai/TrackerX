@@ -6,8 +6,6 @@ async function fetchMatchPage({ puuid, region, page = 0, name, tag }) {
   if (name && tag) {
     url += `&name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}`;
   }
-  // Mode flag only applicable to page > 0 in backend, but we can pass it anyway
-  url += `&mode=competitive`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -112,7 +110,7 @@ export function useMatches(puuid, region = "na", name, tag) {
     if (!matchesQuery.isLoading && baseMatches.length > 0 && !autoLoadStartedRef.current && puuid && isHenrik) {
       autoLoadStartedRef.current = true;
       
-      // Trigger auto-load for EXACTLY ONE PAGE (page 1) in competitive mode
+      // Trigger auto-load for EXACTLY ONE PAGE (page 1)
       const autoLoad = async () => {
         setIsAutoLoading(true);
         try {
