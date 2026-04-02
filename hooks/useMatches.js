@@ -111,7 +111,7 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
         autoLoad();
       }, 1500);
     }
-  }, [matchesQuery.isLoading, baseMatches, puuid, region, name, tag, isHenrik, mode]);
+  }, [matchesQuery.isLoading, baseMatches, puuid, region, name, tag, mode]);
 
   // Reset extra matches when puuid changes or mode changes
   useEffect(() => {
