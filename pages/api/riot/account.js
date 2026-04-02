@@ -10,7 +10,7 @@ const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
 function getAdminFromCookie(req) {
   const cookieHeader = req.headers.cookie || '';
   const match = cookieHeader.match(/trackerx_admin=([^;]+)/);
-  return match && match[1] === process.env.ADMIN_COOKIE_SECRET;
+  return match && match[1] === process.env.ADMIN_PASSWORD;
 }
 
 export default async function handler(req, res) {
