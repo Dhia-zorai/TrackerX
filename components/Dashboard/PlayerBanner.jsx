@@ -1,6 +1,7 @@
 "use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { MapPin, Copy, Check } from "lucide-react";
 import { useMMR } from "@/hooks/useMMR";
 import { RANK_TIERS } from "@/lib/utils";
 import { RankIcon } from "@/components/ui/RankIcon";
@@ -76,7 +77,7 @@ function RankBadge({ mmr, loading }) {
           </span>
         )}
         {mmr.fromMatches && (
-          <span className="text-[9px] text-[var(--text-secondary)] opacity-60">
+          <span className="text-[9px] text-[var(--text-muted)]">
             from last match
           </span>
         )}
@@ -126,6 +127,15 @@ export default function PlayerBanner({ account, region, matches = [] }) {
 
   const { data: mmr, isLoading: mmrLoading } = useMMR({ puuid, region, matches });
 
+  const [copied, setCopied] = useState(false);
+  function handleCopyUsername() {
+    const text = `${gameName}#${tagLine}`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
+
   if (!account) return null;
 
   return (
@@ -169,15 +179,24 @@ export default function PlayerBanner({ account, region, matches = [] }) {
 
         {/* Name + region */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] truncate">
+          <button
+            onClick={handleCopyUsername}
+            className="flex items-center gap-2 flex-wrap group cursor-pointer"
+            title="Click to copy username"
+          >
+            <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
               {gameName}
             </h1>
             <span className="text-[var(--text-secondary)] text-lg font-normal">
               #{tagLine}
             </span>
-          </div>
-          <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-secondary)]">
+            {copied ? (
+              <Check size={14} className="text-[var(--win)] shrink-0" />
+            ) : (
+              <Copy size={14} className="text-[var(--text-muted)] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            )}
+          </button>
+          <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-muted)]">
             <span className="flex items-center gap-1 uppercase tracking-wide font-medium">
               <MapPin size={11} />
               {region}

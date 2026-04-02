@@ -23,8 +23,8 @@
 
   /* Text hierarchy */
   --text-primary:   #e8edf5;
-  --text-secondary: #8a9dc0;
-  --text-muted:     #5e7298;
+  --text-secondary: #a0b4d6;
+  --text-muted:     #7890b5;
 
   /* Borders */
   --border:         rgba(255, 255, 255, 0.09);
@@ -64,8 +64,8 @@
   --accent2-border:   rgba(6, 182, 212, 0.18);
 
   --text-primary:   #0d1120;
-  --text-secondary: #5a6a88;
-  --text-muted:     #8fa0be;
+  --text-secondary: #3d4f6f;
+  --text-muted:     #596f94;
 
   --border:         rgba(0, 0, 0, 0.07);
   --border-accent:  rgba(109, 72, 245, 0.18);
