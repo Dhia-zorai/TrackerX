@@ -5,21 +5,21 @@ import { normalizeHenrikMatch, normalizeLifetimeMatch } from "@/lib/utils";
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
 
-  const { puuid, region = "na", count = "10", page = "0", name, tag } = req.query;
+  const { puuid, region = "na", count = "10", page = "0", name, tag, mode = "" } = req.query;
   if (!puuid) return res.status(400).json({ error: "puuid is required" });
 
   const size = Math.min(parseInt(count, 10) || 10, 10);
   const pageNum = Math.max(parseInt(page, 10) || 0, 0);
-  const cacheKey = `matchlist_v3:${puuid}:${region}:${size}:${pageNum}`;
+  const cacheKey = `matchlist_v3:${puuid}:${region}:${size}:${pageNum}:${mode}`;
   const cached = getCache(cacheKey);
   if (cached) return res.status(200).json(cached);
 
-  console.log(`[Matches] puuid=${puuid} region=${region} size=${size} page=${pageNum} name=${name} tag=${tag}`);
+  console.log(`[Matches] puuid=${puuid} region=${region} size=${size} page=${pageNum} name=${name} tag=${tag} mode=${mode}`);
 
   // Page 0: use Henrik v3 (full match objects with all players)
   if (pageNum === 0) {
     try {
-      const raw = await henrikGetMatchesByPuuid(puuid, region, size);
+      const raw = await henrikGetMatchesByPuuid(puuid, region, size, mode);
       const henrikMatches = Array.isArray(raw) ? raw : [];
       console.log(`[Matches] Henrik v3 returned ${henrikMatches.length} matches (page 0)`);
       const normalized = henrikMatches.map(normalizeHenrikMatch).filter(Boolean);
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
   try {
     // Lifetime endpoint is 1-indexed; pageNum here is 0-indexed so add 1
     const lifetimePage = pageNum + 1;
-    const raw = await henrikGetLifetimeMatches(name, tag, region, lifetimePage, size);
+    const raw = await henrikGetLifetimeMatches(name, tag, region, lifetimePage, size, mode || "competitive");
     // Lifetime endpoint wraps in { data: [...] } or returns array directly
     const entries = Array.isArray(raw) ? raw : (raw?.data || raw || []);
     console.log(`[Matches] Henrik lifetime returned ${entries.length} entries (page ${pageNum})`);
