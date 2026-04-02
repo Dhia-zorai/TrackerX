@@ -67,6 +67,11 @@ function ScoreboardRow({ player, isHighlighted }) {
       'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ' +
       (isHighlighted ? 'bg-[var(--accent-dim)] border border-[var(--border-accent)]' : 'hover:bg-[var(--bg-card)]')
     }>
+      <AgentIcon
+        agentName={player.characterId}
+        size={16}
+        className='rounded shrink-0'
+      />
       <span className={'flex-1 font-medium truncate ' + (isHighlighted ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]')}>
         {player.gameName}#{player.tagLine}
       </span>
