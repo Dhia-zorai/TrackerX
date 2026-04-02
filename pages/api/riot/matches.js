@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         source: "henrik",
         count: normalized.length,
         page: 0,
-        hasMore: normalized.length >= size,
+        hasMore: normalized.length >= Math.min(size, 10),
         puuid,
       };
       setCache(cacheKey, result, 300);
@@ -59,7 +59,16 @@ export default async function handler(req, res) {
     // Lifetime endpoint wraps in { data: [...] } or returns array directly
     const entries = Array.isArray(raw) ? raw : (raw?.data || raw || []);
     console.log(`[Matches] Henrik lifetime returned ${entries.length} entries (page ${pageNum})`);
-    const normalized = entries.map(normalizeLifetimeMatch).filter(Boolean);
+    
+    const normalized = entries.map(entry => {
+      if (entry && entry.metadata) {
+        return normalizeHenrikMatch(entry);
+      } else if (entry && entry.meta) {
+        return normalizeLifetimeMatch(entry);
+      }
+      return null;
+    }).filter(Boolean);
+    
     const result = {
       matches: normalized,
       source: "henrik",

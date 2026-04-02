@@ -71,7 +71,7 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
     : (riotDetailQuery.data || []);
 
   const hasMore = isHenrik
-    ? (page === 0 ? (matchesQuery.data?.hasMore ?? baseMatches.length >= 20) : hasMoreState)
+    ? (page === 0 ? (matchesQuery.data?.hasMore ?? baseMatches.length >= 10) : hasMoreState)
     : riotIds.length > allMatches.length;
 
   const loadMore = useCallback(async () => {
