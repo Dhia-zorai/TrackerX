@@ -33,6 +33,9 @@ function getClientIp(req) {
 }
 
 export async function POST(request) {
+  console.log('SERVICE KEY EXISTS:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+  console.log('SUPABASE URL EXISTS:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
+  
   const clientIp = getClientIp(request);
   
   if (!checkRateLimit(clientIp)) {
@@ -74,7 +77,8 @@ export async function POST(request) {
       }, { onConflict: 'puuid' });
     
     if (insertError) {
-      return Response.json({ error: 'Failed to opt out' }, { status: 500 });
+      console.error('INSERT ERROR:', insertError);
+      return Response.json({ error: insertError.message }, { status: 500 });
     }
     
     // Delete player_match_stats for this puuid
@@ -91,6 +95,7 @@ export async function POST(request) {
     
     return Response.json({ success: true });
   } catch (err) {
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('OPTOUT ERROR:', err.message, err.details, err.hint);
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
