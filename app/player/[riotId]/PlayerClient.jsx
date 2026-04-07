@@ -1,9 +1,9 @@
 "use client";
-import { use, useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Crosshair, Download } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useMatches } from "@/hooks/useMatches";
 import Dashboard from "@/components/Dashboard";
@@ -12,12 +12,12 @@ import ShareCard from "@/components/ShareCard";
 import Toast from "@/components/ui/Toast";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar } from "@/components/Charts";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
 import { exportFullJSON } from "@/lib/exportData";
 import { OptOutBanner } from "@/components/OptOutBanner";
 import { OptedOutCard } from "@/components/OptedOutCard";
+import SiteHeader from "@/components/SiteHeader";
 
 export function PlayerClient({ resolvedParams, isAdmin }) {
   const searchParams = useSearchParams();
@@ -84,20 +84,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
 
   return (
     <main className='min-h-screen w-full px-4 py-8 max-w-5xl mx-auto'>
-      <div className='flex items-center justify-between mb-8'>
-        <Link href='/' className='flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'>
-          <ArrowLeft size={14} />
-          <div className='flex items-center gap-1.5'>
-            <div className='w-5 h-5 bg-[var(--accent)] rounded flex items-center justify-center'>
-              <Crosshair size={11} className='text-white' strokeWidth={2.5} />
-            </div>
-            <span className='font-semibold text-[var(--text-primary)]'>Tracker<span className='text-[var(--accent)]'>X</span></span>
-          </div>
-        </Link>
-         <div className='flex items-center gap-2'>
-           <ThemeToggle />
-         </div>
-      </div>
+      <SiteHeader showBack region={region} isAdmin={isAdmin} className='mb-8' />
 
       {account && !isOptedOut && !isAdmin && (
         <OptOutBanner puuid={account.puuid} riotId={riotId} />
@@ -147,6 +134,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
             </div>
             <MatchHistory
               puuid={account?.puuid}
+              region={region}
               matches={filteredMatches}
               loading={loading}
               loadingMore={loadingMore}
@@ -166,27 +154,11 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
                 </div>
 
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  <div className='glass rounded-lg p-1 flex gap-1'>
-                    <button
-                      onClick={() => setFilterMode('all')}
-                      className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        filterMode === 'all'
-                          ? 'bg-[var(--accent)] text-white'
-                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                      }`}
-                    >
-                      All Matches
-                    </button>
-                    <button
-                      onClick={() => setFilterMode('competitive')}
-                      className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        filterMode === 'competitive'
-                          ? 'bg-[var(--accent)] text-white'
-                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                      }`}
-                    >
-                      Competitive Only
-                    </button>
+                  <div className='glass rounded-lg p-4'>
+                    <div className='text-xs text-[var(--text-secondary)] mb-1'>Filter Mode</div>
+                    <div className='text-sm font-semibold text-[var(--text-primary)]'>
+                      {filterMode === 'all' ? 'All Matches' : 'Competitive Only'}
+                    </div>
                   </div>
 
                   <div className='glass rounded-lg p-4'>

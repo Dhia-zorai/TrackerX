@@ -2,7 +2,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
-import { extractPlayerStats, timeAgo, capitalizeAgent } from "@/lib/utils";
+import Link from "next/link";
+import { extractPlayerStats, timeAgo, capitalizeAgent, encodeRiotIdForUrl } from "@/lib/utils";
 import { AgentIcon } from "@/components/ui/AgentIcon";
 import { MapImage } from "@/components/ui/MapImage";
 
@@ -59,9 +60,17 @@ function ResultChip({ won, drew }) {
   return          <span className="chip-loss text-[10px] px-2 py-0.5 rounded font-bold tracking-wide">LOSS</span>;
 }
 
-function ScoreboardRow({ player, isHighlighted }) {
+function ScoreboardRow({ player, isHighlighted, currentPuuid, region }) {
   const stats = player.stats || {};
   const acs = stats.score ? Math.round(stats.score / Math.max(1, 12)) : 0;
+  const hasValidName = player.gameName && player.tagLine;
+  const isCurrentPlayer = player.puuid === currentPuuid;
+  const playerName = hasValidName ? `${player.gameName}#${player.tagLine}` : 'Unknown';
+  
+  const playerLink = hasValidName && !isCurrentPlayer
+    ? `/player/${encodeRiotIdForUrl(player.gameName, player.tagLine)}?region=${region || 'eu'}`
+    : null;
+
   return (
     <div className={
       'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ' +
@@ -72,9 +81,15 @@ function ScoreboardRow({ player, isHighlighted }) {
         size={16}
         className='rounded shrink-0'
       />
-      <span className={'flex-1 font-medium truncate ' + (isHighlighted ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]')}>
-        {player.gameName}#{player.tagLine}
-      </span>
+      {playerLink ? (
+        <Link href={playerLink} className="flex-1 font-medium truncate text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150 cursor-pointer no-underline">
+          {playerName}
+        </Link>
+      ) : (
+        <span className={'flex-1 font-medium truncate ' + (isHighlighted ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]')}>
+          {playerName}
+        </span>
+      )}
       <span className="w-16 text-center tabular-nums text-[var(--text-secondary)]">
         {stats.kills || 0}/{stats.deaths || 0}/{stats.assists || 0}
       </span>
@@ -93,7 +108,7 @@ async function fetchMatchDetails(matchId) {
   return res.json();
 }
 
-export default function MatchCard({ match, puuid }) {
+export default function MatchCard({ match, puuid, region }) {
   const [expanded, setExpanded] = useState(false);
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState('desc');
@@ -232,11 +247,11 @@ export default function MatchCard({ match, puuid }) {
           </div>
           <div>
             <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Your Team</p>
-            {sortedMyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={p.puuid === puuid} />)}
+            {sortedMyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={p.puuid === puuid} currentPuuid={puuid} region={region} />)}
           </div>
           <div>
             <p className='text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 px-3'>Enemy Team</p>
-            {sortedEnemyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={false} />)}
+            {sortedEnemyTeam.map(p => <ScoreboardRow key={p.puuid} player={p} isHighlighted={false} currentPuuid={puuid} region={region} />)}
           </div>
         </>
       );

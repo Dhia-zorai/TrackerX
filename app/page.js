@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import PlayerSearch from "@/components/PlayerSearch";
 import { Crosshair, TrendingUp, Activity, FileJson } from "lucide-react";
-import ThemeToggle from "@/components/ui/ThemeToggle";
+import SiteHeader from "@/components/SiteHeader";
 
 const features = [
   {
@@ -54,9 +54,8 @@ export default function Home() {
         }}
       />
 
-      {/* Theme toggle */}
-      <div className="absolute top-6 right-6 z-10">
-        <ThemeToggle />
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 w-full max-w-5xl px-4 z-20">
+        <SiteHeader />
       </div>
 
       <motion.div
