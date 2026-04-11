@@ -84,7 +84,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
 
   return (
     <main className='min-h-screen w-full px-4 py-8 max-w-5xl mx-auto'>
-      <SiteHeader showBack region={region} isAdmin={isAdmin} className='mb-8' />
+      <SiteHeader showBack region={region} isAdmin={isAdmin} enableSpotlight className='mb-8' />
 
       {account && !isOptedOut && !isAdmin && (
         <OptOutBanner puuid={account.puuid} riotId={riotId} />

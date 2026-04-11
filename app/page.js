@@ -55,7 +55,7 @@ export default function Home() {
       />
 
       <div className="absolute top-6 left-1/2 -translate-x-1/2 w-full max-w-5xl px-4 z-20">
-        <SiteHeader />
+        <SiteHeader showSearch={false} />
       </div>
 
       <motion.div

@@ -8,12 +8,21 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import { usePlayerStore } from "@/store/playerStore";
 import { encodeRiotIdForUrl, parseRiotId } from "@/lib/utils";
 
-export default function SiteHeader({ showBack = false, region, isAdmin = false, className = "" }) {
+export default function SiteHeader({
+  showBack = false,
+  region,
+  isAdmin = false,
+  showSearch = true,
+  enableSpotlight = false,
+  className = "",
+}) {
   const router = useRouter();
   const rootRef = useRef(null);
+  const spotlightInputRef = useRef(null);
   const [input, setInput] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const { recentSearches, addRecentSearch, region: storeRegion, initializeRegion } = usePlayerStore();
 
@@ -26,12 +35,14 @@ export default function SiteHeader({ showBack = false, region, isAdmin = false, 
       if (rootRef.current && !rootRef.current.contains(e.target)) {
         setSearchFocused(false);
         setMobileOpen(false);
+        setSpotlightOpen(false);
       }
     }
     function onDocKeyDown(e) {
       if (e.key === "Escape") {
         setSearchFocused(false);
         setMobileOpen(false);
+        setSpotlightOpen(false);
       }
     }
     document.addEventListener("mousedown", onDocMouseDown);
@@ -41,6 +52,22 @@ export default function SiteHeader({ showBack = false, region, isAdmin = false, 
       document.removeEventListener("keydown", onDocKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    if (spotlightOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [spotlightOpen]);
+
+  useEffect(() => {
+    if (spotlightOpen) {
+      setTimeout(() => spotlightInputRef.current?.focus(), 60);
+    }
+  }, [spotlightOpen]);
 
   const effectiveRegion = region || storeRegion || "eu";
 
@@ -61,6 +88,15 @@ export default function SiteHeader({ showBack = false, region, isAdmin = false, 
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 300);
     setInput("");
+  }
+
+  function openFocusedSearch() {
+    if (enableSpotlight) {
+      setSearchFocused(true);
+      setSpotlightOpen(true);
+      return;
+    }
+    setSearchFocused(true);
   }
 
   return (
@@ -85,55 +121,66 @@ export default function SiteHeader({ showBack = false, region, isAdmin = false, 
       </div>
 
       <div className="flex items-center gap-2">
-        <form onSubmit={handleSubmit} className="hidden md:block relative">
-          <motion.div
-            animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="h-9 w-[200px] rounded-md border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              placeholder="Search player..."
-              className="h-full w-full px-3 pr-9 bg-transparent text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none"
-            />
-            <button type="submit" className="absolute right-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-              <Search size={14} />
-            </button>
-          </motion.div>
-
-          {searchFocused && recentSearches.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 rounded-lg overflow-hidden z-50 border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
-              {recentSearches.slice(0, 4).map((s) => (
-                <button
-                  key={s.riotId}
-                  type="button"
-                  onMouseDown={() => goToPlayer(s.riotId)}
-                  className="w-full px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--accent-dim)] transition-colors cursor-pointer flex items-center justify-between"
-                >
-                  <span>{s.riotId}</span>
-                  <span className="text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
+        {showSearch && (
+          <>
+            <form onSubmit={handleSubmit} className="hidden md:block relative">
+              <motion.div
+                layoutId={enableSpotlight ? "header-search-shell" : undefined}
+                animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
+                transition={{ duration: 0.3 }}
+                className="h-9 w-[200px] rounded-md border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
+              >
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onFocus={openFocusedSearch}
+                  placeholder="Search player..."
+                  className="h-full w-full px-3 pr-9 bg-transparent text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none"
+                />
+                <button type="submit" className="absolute right-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                  <Search size={14} />
                 </button>
-              ))}
-            </div>
-          )}
-        </form>
+              </motion.div>
 
-        <button
-          type="button"
-          onClick={() => setMobileOpen((v) => !v)}
-          className="md:hidden p-2 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-        >
-          <Search size={16} />
-        </button>
+              {!enableSpotlight && searchFocused && recentSearches.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 rounded-lg overflow-hidden z-50 border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
+                  {recentSearches.slice(0, 4).map((s) => (
+                    <button
+                      key={s.riotId}
+                      type="button"
+                      onMouseDown={() => goToPlayer(s.riotId)}
+                      className="w-full px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--accent-dim)] transition-colors cursor-pointer flex items-center justify-between"
+                    >
+                      <span>{s.riotId}</span>
+                      <span className="text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </form>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (enableSpotlight) {
+                  openFocusedSearch();
+                } else {
+                  setMobileOpen((v) => !v);
+                }
+              }}
+              className="md:hidden p-2 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              <Search size={16} />
+            </button>
+          </>
+        )}
 
         <ThemeToggle />
       </div>
 
       <AnimatePresence>
-        {mobileOpen && (
+        {showSearch && mobileOpen && !enableSpotlight && (
           <motion.div
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "100%", opacity: 1 }}
@@ -177,6 +224,75 @@ export default function SiteHeader({ showBack = false, region, isAdmin = false, 
                 ))}
               </div>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSearch && spotlightOpen && enableSpotlight && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[80]"
+          >
+            <button
+              type="button"
+              className="absolute inset-0 w-full h-full bg-black/25 backdrop-blur-sm"
+              onClick={() => {
+                setSpotlightOpen(false);
+                setSearchFocused(false);
+              }}
+              aria-label="Close search"
+            />
+
+            <div className="absolute inset-0 flex items-center justify-center px-4">
+              <motion.form
+                onSubmit={handleSubmit}
+                layoutId="header-search-shell"
+                initial={{ scale: 0.96, opacity: 0.92 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.98, opacity: 0.96 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="relative w-[min(92vw,560px)]"
+              >
+                <motion.div
+                  animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-11 rounded-md border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
+                >
+                  <input
+                    ref={spotlightInputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onFocus={() => setSearchFocused(true)}
+                    placeholder="Search player..."
+                    className="h-full w-full px-4 pr-10 bg-transparent text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none"
+                  />
+                  <button type="submit" className="absolute right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                    <Search size={15} />
+                  </button>
+                </motion.div>
+
+                {searchFocused && recentSearches.length > 0 && (
+                  <div className="mt-2 rounded-lg overflow-hidden border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
+                    {recentSearches.slice(0, 4).map((s) => (
+                      <button
+                        key={s.riotId}
+                        type="button"
+                        onMouseDown={() => goToPlayer(s.riotId)}
+                        className="w-full px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--accent-dim)] transition-colors cursor-pointer flex items-center justify-between"
+                      >
+                        <span>{s.riotId}</span>
+                        <span className="text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </motion.form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
