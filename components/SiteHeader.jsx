@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Crosshair, Search } from "lucide-react";
+import { ArrowLeft, Clock, Crosshair, Search, X } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { usePlayerStore } from "@/store/playerStore";
 import { encodeRiotIdForUrl, parseRiotId } from "@/lib/utils";
@@ -24,7 +24,14 @@ export default function SiteHeader({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const { recentSearches, addRecentSearch, region: storeRegion, initializeRegion } = usePlayerStore();
+  const {
+    recentSearches,
+    addRecentSearch,
+    removeRecentSearch,
+    clearRecentSearches,
+    region: storeRegion,
+    initializeRegion,
+  } = usePlayerStore();
 
   useEffect(() => {
     initializeRegion();
@@ -99,6 +106,51 @@ export default function SiteHeader({
     setSearchFocused(true);
   }
 
+  function RecentSearchesDropdown() {
+    if (!searchFocused || recentSearches.length === 0) return null;
+
+    return (
+      <div className="mt-2 rounded-xl overflow-hidden z-50 border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
+          <span className="text-xs font-medium text-[var(--text-secondary)]">Recent Searches</span>
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              clearRecentSearches();
+            }}
+            className="text-xs text-[var(--text-secondary)] hover:text-[var(--loss)] transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+
+        {recentSearches.slice(0, 4).map((s) => (
+          <div
+            key={s.riotId}
+            className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--accent-dim)] transition-colors group cursor-pointer"
+            onMouseDown={() => goToPlayer(s.riotId)}
+          >
+            <Clock size={12} className="text-[var(--text-secondary)] shrink-0" />
+            <span className="flex-1 text-sm text-[var(--text-primary)]">
+              {s.riotId} <span className="ml-2 text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
+            </span>
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                removeRecentSearch(s.riotId);
+              }}
+              className="opacity-0 group-hover:opacity-100 text-[var(--text-secondary)] hover:text-[var(--loss)] transition-all"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div ref={rootRef} className={`relative flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2 min-w-0">
@@ -128,7 +180,7 @@ export default function SiteHeader({
                 layoutId={enableSpotlight ? "header-search-shell" : undefined}
                 animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
                 transition={{ duration: 0.3 }}
-                className="h-9 w-[200px] rounded-md border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
+                className="h-10 w-[220px] rounded-xl border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
               >
                 <input
                   type="text"
@@ -138,26 +190,12 @@ export default function SiteHeader({
                   placeholder="Search player..."
                   className="h-full w-full px-3 pr-9 bg-transparent text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none"
                 />
-                <button type="submit" className="absolute right-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                <button type="submit" className="absolute right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   <Search size={14} />
                 </button>
               </motion.div>
 
-              {!enableSpotlight && searchFocused && recentSearches.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 rounded-lg overflow-hidden z-50 border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
-                  {recentSearches.slice(0, 4).map((s) => (
-                    <button
-                      key={s.riotId}
-                      type="button"
-                      onMouseDown={() => goToPlayer(s.riotId)}
-                      className="w-full px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--accent-dim)] transition-colors cursor-pointer flex items-center justify-between"
-                    >
-                      <span>{s.riotId}</span>
-                      <span className="text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+              {!enableSpotlight && <RecentSearchesDropdown />}
             </form>
 
             <button
@@ -192,7 +230,7 @@ export default function SiteHeader({
               <motion.div
                 animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
                 transition={{ duration: 0.3 }}
-                className="h-9 w-full rounded-md border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
+                className="h-10 w-full rounded-xl border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
               >
                 <input
                   type="text"
@@ -203,27 +241,13 @@ export default function SiteHeader({
                   placeholder="Search player..."
                   className="h-full w-full px-3 pr-9 bg-transparent text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none"
                 />
-                <button type="submit" className="absolute right-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                <button type="submit" className="absolute right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   <Search size={14} />
                 </button>
               </motion.div>
             </form>
 
-            {searchFocused && recentSearches.length > 0 && (
-              <div className="mt-2 rounded-lg overflow-hidden border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
-                {recentSearches.slice(0, 4).map((s) => (
-                  <button
-                    key={s.riotId}
-                    type="button"
-                    onMouseDown={() => goToPlayer(s.riotId)}
-                    className="w-full px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--accent-dim)] transition-colors cursor-pointer flex items-center justify-between"
-                  >
-                    <span>{s.riotId}</span>
-                    <span className="text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            <RecentSearchesDropdown />
           </motion.div>
         )}
       </AnimatePresence>
@@ -237,19 +261,18 @@ export default function SiteHeader({
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[80]"
           >
-            <button
-              type="button"
+            <div
               className="absolute inset-0 w-full h-full bg-black/25 backdrop-blur-sm"
-              onClick={() => {
+              onMouseDown={() => {
                 setSpotlightOpen(false);
                 setSearchFocused(false);
               }}
-              aria-label="Close search"
             />
 
             <div className="absolute inset-0 flex items-center justify-center px-4">
               <motion.form
                 onSubmit={handleSubmit}
+                onMouseDown={(e) => e.stopPropagation()}
                 layoutId="header-search-shell"
                 initial={{ scale: 0.96, opacity: 0.92 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -260,7 +283,7 @@ export default function SiteHeader({
                 <motion.div
                   animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="h-11 rounded-md border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
+                  className="h-11 rounded-xl border border-[var(--border-tertiary)] focus-within:border-[var(--border-secondary)] bg-[var(--bg-secondary)] flex items-center"
                 >
                   <input
                     ref={spotlightInputRef}
@@ -276,21 +299,7 @@ export default function SiteHeader({
                   </button>
                 </motion.div>
 
-                {searchFocused && recentSearches.length > 0 && (
-                  <div className="mt-2 rounded-lg overflow-hidden border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
-                    {recentSearches.slice(0, 4).map((s) => (
-                      <button
-                        key={s.riotId}
-                        type="button"
-                        onMouseDown={() => goToPlayer(s.riotId)}
-                        className="w-full px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--accent-dim)] transition-colors cursor-pointer flex items-center justify-between"
-                      >
-                        <span>{s.riotId}</span>
-                        <span className="text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <RecentSearchesDropdown />
               </motion.form>
             </div>
           </motion.div>
