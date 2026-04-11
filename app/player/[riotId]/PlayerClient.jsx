@@ -68,6 +68,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
   const aggregated = useMemo(() => aggregateStats(matchStats), [matchStats]);
   const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const analyticsRef = { current: analyticsByMatchId };
     
@@ -75,7 +76,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
 
     async function hydrateAnalytics() {
       if (!account?.puuid || !filteredMatches.length) {
-        if (!cancelled) setAnalyticsByMatchId({});
+        if (!cancelled) setAnalyticsByMatchId((prev) => Object.keys(prev).length === 0 ? prev : {});
         return;
       }
 
@@ -188,7 +189,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
         };
       })
       .filter(Boolean);
-  }, [filteredMatches, account?.puuid, analyticsByMatchId]);
+  }, [filteredMatches, account?.puuid]);
 
   const rankTier = "Gold";
 

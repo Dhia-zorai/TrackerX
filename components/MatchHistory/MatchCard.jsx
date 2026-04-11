@@ -36,7 +36,11 @@ function getSortedTeam(team, sortBy, sortOrder) {
 function StatButton({ label, onStatClick, currentSort, currentOrder, statKey }) {
   const isActive = currentSort === statKey;
   
+
+
+
   return (
+
     <button
       onClick={() => onStatClick(statKey)}
       className={'px-3 py-1.5 rounded-md font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer border flex flex-col items-center gap-1.5 ' +
@@ -109,6 +113,93 @@ async function fetchMatchDetails(matchId) {
   return res.json();
 }
 
+  function renderAdvancedStats(pStats) {
+    if (!pStats) return null;
+
+    // Check if we have any advanced data to show
+    const hasAdvancedData = 
+      pStats.firstBloods !== null || 
+      pStats.ecoRounds !== null || 
+      pStats.multiKillRounds !== null ||
+      pStats.spikePlants !== null;
+
+    if (!hasAdvancedData) return null;
+
+    return (
+      <div className="mt-2 pt-4 border-t border-[var(--border)]">
+        <p className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-3 px-1">
+          Advanced Match Metrics
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Duels & Trades */}
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 border border-[var(--border)]">
+            <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-2">Duels & Trades</p>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)]">First Bloods</span>
+              <span className="font-medium text-[var(--win)]">{pStats.firstBloods ?? 0}</span>
+            </div>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)]">First Deaths</span>
+              <span className="font-medium text-[var(--loss)]">{pStats.firstDeaths ?? 0}</span>
+            </div>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)]">Trade Kills</span>
+              <span className="font-medium text-[var(--accent)]">{pStats.tradeKills ?? 0}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-[var(--text-secondary)]">Traded Deaths</span>
+              <span className="font-medium text-[var(--text-primary)]">{pStats.tradedDeaths ?? 0}</span>
+            </div>
+          </div>
+
+          {/* Objectives */}
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 border border-[var(--border)]">
+            <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-2">Objective</p>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)]">Spike Plants</span>
+              <span className="font-medium text-[var(--text-primary)]">{pStats.spikePlants ?? 0}</span>
+            </div>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)]">Spike Defuses</span>
+              <span className="font-medium text-[var(--text-primary)]">{pStats.spikeDefuses ?? 0}</span>
+            </div>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)]">Clutches Won</span>
+              <span className="font-medium text-[var(--accent)]">{pStats.clutches ?? 0} <span className="text-[var(--text-muted)] text-[10px]">/ {pStats.clutchAttempts ?? 0}</span></span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-[var(--text-secondary)]">Eco Rounds</span>
+              <span className="font-medium text-[var(--text-primary)]">{pStats.ecoRounds ?? 0}</span>
+            </div>
+          </div>
+
+          {/* Multi-Kills */}
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 border border-[var(--border)]">
+            <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-2">Multi-Kills</p>
+            <div className="grid grid-cols-4 gap-1 text-center h-[calc(100%-24px)] items-center">
+              <div className="flex flex-col justify-center">
+                <span className="text-[10px] text-[var(--text-secondary)] mb-1">2K</span>
+                <span className="font-bold text-[var(--text-primary)]">{pStats.multiKillRounds?.['2'] ?? 0}</span>
+              </div>
+              <div className="flex flex-col justify-center">
+                <span className="text-[10px] text-[var(--text-secondary)] mb-1">3K</span>
+                <span className="font-bold text-[var(--text-primary)]">{pStats.multiKillRounds?.['3'] ?? 0}</span>
+              </div>
+              <div className="flex flex-col justify-center">
+                <span className="text-[10px] text-[var(--text-secondary)] mb-1">4K</span>
+                <span className="font-bold text-[var(--text-primary)]">{pStats.multiKillRounds?.['4'] ?? 0}</span>
+              </div>
+              <div className="flex flex-col justify-center bg-[var(--win-dim)] rounded py-1">
+                <span className="text-[10px] text-[var(--win)] font-bold mb-1">ACE</span>
+                <span className="font-bold text-[var(--win)]">{pStats.multiKillRounds?.['5'] ?? 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 export default function MatchCard({ match, puuid, region, analytics }) {
   const [expanded, setExpanded] = useState(false);
   const [sortBy, setSortBy] = useState(null);
@@ -129,13 +220,32 @@ export default function MatchCard({ match, puuid, region, analytics }) {
     if (!stats) return null;
     
     // Add advanced stats from raw if available
-    let advanced = { kastPct: null, firstBloods: null };
+    let advanced = { 
+      kastPct: null, firstBloods: null, firstDeaths: null,
+      clutches: null, clutchAttempts: null, multiKills: null,
+      spikePlants: null, spikeDefuses: null,
+      tradeKills: null, tradedDeaths: null, ecoRounds: null,
+      multiKillRounds: null
+    };
     
     // 1. Try to compute from Henrik rounds array (most accurate for v3)
     if (activeMatch._henrik && Array.isArray(activeMatch._henrik.rounds) && activeMatch._henrik.rounds.length > 0) {
       const computed = computeMatchStats(activeMatch._henrik, puuid);
       advanced.kastPct = computed.kast_pct;
       advanced.firstBloods = computed.first_bloods;
+      advanced.firstDeaths = computed.first_deaths;
+      advanced.clutches = computed.clutch_wins;
+      advanced.clutchAttempts = computed.clutch_attempts;
+      advanced.spikePlants = computed.spike_plants;
+      advanced.spikeDefuses = computed.spike_defuses;
+      advanced.tradeKills = computed.trade_kills;
+      advanced.tradedDeaths = computed.traded_deaths;
+      advanced.ecoRounds = computed.eco_rounds;
+      advanced.multiKillRounds = computed.multi_kill_rounds;
+      advanced.multiKills = computed.multi_kill_rounds ? 
+        Object.entries(computed.multi_kill_rounds)
+          .filter(([k, v]) => parseInt(k) >= 3 && v > 0)
+          .reduce((sum, [k, v]) => sum + v, 0) : null;
     }
     
     // 2. Try to get from Henrik raw player stats (some API responses include it inline)
@@ -148,9 +258,22 @@ export default function MatchCard({ match, puuid, region, analytics }) {
     }
     
     // 3. Try to get from analytics prop (passed down from parent pre-fetching)
-    if (advanced.kastPct == null && analytics) {
-      advanced.kastPct = analytics.kast_pct;
-      advanced.firstBloods = analytics.first_bloods;
+    if (analytics) {
+      advanced.kastPct = advanced.kastPct ?? analytics.kast_pct;
+      advanced.firstBloods = advanced.firstBloods ?? analytics.first_bloods;
+      advanced.firstDeaths = advanced.firstDeaths ?? analytics.first_deaths;
+      advanced.clutches = advanced.clutches ?? analytics.clutch_wins;
+      advanced.clutchAttempts = advanced.clutchAttempts ?? analytics.clutch_attempts;
+      advanced.spikePlants = advanced.spikePlants ?? analytics.spike_plants;
+      advanced.spikeDefuses = advanced.spikeDefuses ?? analytics.spike_defuses;
+      advanced.tradeKills = advanced.tradeKills ?? analytics.trade_kills;
+      advanced.tradedDeaths = advanced.tradedDeaths ?? analytics.traded_deaths;
+      advanced.ecoRounds = advanced.ecoRounds ?? analytics.eco_rounds;
+      advanced.multiKillRounds = advanced.multiKillRounds ?? analytics.multi_kill_rounds;
+      advanced.multiKills = advanced.multiKills ?? (analytics.multi_kill_rounds ? 
+        Object.entries(analytics.multi_kill_rounds)
+          .filter(([k, v]) => parseInt(k) >= 3 && v > 0)
+          .reduce((sum, [k, v]) => sum + v, 0) : null);
     }
     
     // 4. Fallback to match object if they were injected at the top level
@@ -158,6 +281,16 @@ export default function MatchCard({ match, puuid, region, analytics }) {
       ...stats,
       kastPct: advanced.kastPct ?? activeMatch.kast_pct ?? activeMatch.kastPct ?? null,
       firstBloods: advanced.firstBloods ?? activeMatch.first_bloods ?? activeMatch.firstBloods ?? null,
+      firstDeaths: advanced.firstDeaths ?? null,
+      clutches: advanced.clutches ?? null,
+      clutchAttempts: advanced.clutchAttempts ?? null,
+      multiKills: advanced.multiKills ?? null,
+      multiKillRounds: advanced.multiKillRounds ?? null,
+      spikePlants: advanced.spikePlants ?? null,
+      spikeDefuses: advanced.spikeDefuses ?? null,
+      tradeKills: advanced.tradeKills ?? null,
+      tradedDeaths: advanced.tradedDeaths ?? null,
+      ecoRounds: advanced.ecoRounds ?? null,
     };
   }, [activeMatch, puuid, match, analytics]);
 
@@ -179,19 +312,23 @@ export default function MatchCard({ match, puuid, region, analytics }) {
     const myTeam = allPlayers.filter(p => p.teamId === playerStats.teamId);
     const enemyTeam = allPlayers.filter(p => p.teamId !== playerStats.teamId);
     
-    // Check if we need to lazy-load (only 1 player = lifetime endpoint data)
-    const needsLazyLoad = allPlayers.length <= 1 && !fullMatchData;
+    // Check if we need to lazy-load (missing full players OR missing rounds for advanced stats)
+    const lacksRounds = !activeMatch._henrik || !Array.isArray(activeMatch._henrik.rounds) || activeMatch._henrik.rounds.length === 0;
+    const lacksAnalytics = !analytics || analytics.multi_kill_rounds == null;
+    const needsLazyLoad = (allPlayers.length <= 1 || (lacksRounds && lacksAnalytics)) && !fullMatchData;
     
     return { info, mapName, gameMode, timestamp, teams, allPlayers, myTeam, enemyTeam, needsLazyLoad };
-  }, [match, playerStats, activeMatch, fullMatchData]);
+  }, [match, playerStats, activeMatch, fullMatchData, analytics]);
 
   const team0 = teams[0] || {};
   const team1 = teams[1] || {};
   const score = team0.roundsWon !== undefined ? team0.roundsWon + ' – ' + team1.roundsWon : '';
 
-  // Lazy load full match details when expanding
-  useEffect(() => {
-    if (expanded && needsLazyLoad && !loadingDetails && !loadError && match?.matchId) {
+  // Use a function to trigger lazy loading when clicked to avoid sync setState in effect
+  function handleExpand() {
+    const nextExpanded = !expanded;
+    setExpanded(nextExpanded);
+    if (nextExpanded && needsLazyLoad && !loadingDetails && !loadError && match?.matchId) {
       setLoadingDetails(true);
       fetchMatchDetails(match.matchId)
         .then(data => {
@@ -206,7 +343,7 @@ export default function MatchCard({ match, puuid, region, analytics }) {
           setLoadingDetails(false);
         });
     }
-  }, [expanded, needsLazyLoad, loadingDetails, loadError, match?.matchId]);
+  }
 
   // Handle stat click: cycle through DESC → ASC → ORIGINAL
   function handleStatClick(statKey) {
@@ -311,7 +448,7 @@ export default function MatchCard({ match, puuid, region, analytics }) {
       {/* Main row */}
       <div
         className='flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
-        onClick={() => setExpanded(e => !e)}
+        onClick={handleExpand}
       >
         {/* Map block - Enhanced with thumbnail and gradient overlay */}
         <div
@@ -376,7 +513,7 @@ export default function MatchCard({ match, puuid, region, analytics }) {
             
             {(playerStats.kpPct != null || playerStats.kpr != null) && (
               <>
-                <span className='text-[var(--text-muted)]'>·</span>
+                <span className='text-[var(--text-muted)]'>•</span>
                 <div className='flex items-center gap-1.5 whitespace-nowrap'>
                   {playerStats.kpPct != null && (
                     <span title="Kill Participation" className='tabular-nums'>
@@ -384,12 +521,28 @@ export default function MatchCard({ match, puuid, region, analytics }) {
                     </span>
                   )}
                   {playerStats.kpPct != null && playerStats.kpr != null && (
-                    <span className='text-[var(--text-muted)]'>·</span>
+                    <span className='text-[var(--text-muted)]'>•</span>
                   )}
                   {playerStats.kpr != null && (
                     <span title="Kills Per Round" className='tabular-nums'>
                       <span className='font-medium text-[var(--text-primary)]'>{playerStats.kpr.toFixed(2)}</span> KPR
                     </span>
+                  )}
+                  {playerStats.clutches > 0 && (
+                    <>
+                      <span className='text-[var(--text-muted)]'>•</span>
+                      <span title="Clutch Wins" className='tabular-nums font-bold text-[var(--accent)]'>
+                        {playerStats.clutches} Clutch{playerStats.clutches > 1 ? 'es' : ''}
+                      </span>
+                    </>
+                  )}
+                  {playerStats.multiKills > 0 && (
+                    <>
+                      <span className='text-[var(--text-muted)]'>•</span>
+                      <span title="3+ Kill Rounds" className='tabular-nums font-bold text-[var(--win)]'>
+                        {playerStats.multiKills} Multi-Kill{playerStats.multiKills > 1 ? 's' : ''}
+                      </span>
+                    </>
                   )}
                 </div>
               </>
@@ -444,6 +597,7 @@ export default function MatchCard({ match, puuid, region, analytics }) {
           >
             <div className='p-4 space-y-4'>
               {renderScoreboardContent()}
+              {renderAdvancedStats(playerStats)}
             </div>
           </motion.div>
         )}

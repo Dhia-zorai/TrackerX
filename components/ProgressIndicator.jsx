@@ -10,7 +10,7 @@ export function ProgressIndicator({ matchCount, isLoading }) {
   useEffect(() => {
     // Show indicator when loading or match count changes
     if (isLoading || matchCount > 0) {
-      setVisible(true);
+      setTimeout(() => setVisible(true), 0);
       
       // Clear any existing hide timer
       if (hideTimer) {
