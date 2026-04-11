@@ -100,7 +100,7 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
           setPage(1);
           setHasMoreState(data?.hasMore ?? newMatches.length >= 20);
         } catch (e) {
-          console.error("[useMatches] auto-load failed:", e.message);
+          // Silent failure - matches will be empty
         } finally {
           setIsAutoLoading(false);
         }

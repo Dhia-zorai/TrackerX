@@ -5,7 +5,7 @@ import MatchCard from "./MatchCard";
 import { MatchCardSkeleton } from "@/components/ui/Skeleton";
 import ErrorState from "@/components/ui/ErrorState";
 
-export default function MatchHistory({ puuid, region, matches, loading, loadingMore, error, hasMore, loadMore, onRefresh }) {
+export default function MatchHistory({ puuid, region, matches, loading, loadingMore, error, hasMore, loadMore, onRefresh, analyticsByMatchId = {} }) {
   return (
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
@@ -26,7 +26,7 @@ export default function MatchHistory({ puuid, region, matches, loading, loadingM
           : matches.map((match, i) =>
               match ? (
                 <motion.div key={match.matchId || i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
-                  <MatchCard match={match} puuid={puuid} region={region} />
+                  <MatchCard match={match} puuid={puuid} region={region} analytics={analyticsByMatchId[match.matchId]} />
                 </motion.div>
               ) : null
             )

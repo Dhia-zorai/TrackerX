@@ -8,9 +8,21 @@ const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0];
   return (
-    <div className='glass-accent rounded-lg px-3 py-2 text-xs'>
-      <p className='font-semibold text-[var(--text-primary)] capitalize'>{d.name}</p>
-      <p className='text-[var(--text-secondary)]'>{d.value} games ({d.payload.pct}%)</p>
+    <div className='bg-[var(--bg-elevated)] border border-[var(--border-accent)] shadow-2xl rounded-lg px-4 py-3 text-xs min-w-[140px]'>
+      <p className='font-bold text-[var(--text-primary)] mb-2 pb-2 border-b border-[var(--border)] capitalize flex items-center gap-2'>
+        <span className='w-2.5 h-2.5 rounded-full' style={{ backgroundColor: d.payload.fill || d.color }}></span>
+        {d.name}
+      </p>
+      <div className='flex flex-col gap-2'>
+        <p className='flex items-center justify-between gap-4'>
+          <span className='text-[var(--text-secondary)] font-medium'>Games Played</span>
+          <span className='font-bold text-[var(--text-primary)]'>{d.value}</span>
+        </p>
+        <p className='flex items-center justify-between gap-4'>
+          <span className='text-[var(--text-secondary)] font-medium'>Pick Rate</span>
+          <span className='font-bold text-[var(--text-primary)]'>{d.payload.pct}%</span>
+        </p>
+      </div>
     </div>
   );
 };

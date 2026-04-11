@@ -269,7 +269,7 @@ export default function SiteHeader({
               }}
             />
 
-            <div className="absolute inset-0 flex items-center justify-center px-4">
+            <div className="absolute inset-0 flex items-center justify-center px-4 pointer-events-none">
               <motion.form
                 onSubmit={handleSubmit}
                 onMouseDown={(e) => e.stopPropagation()}
@@ -278,7 +278,7 @@ export default function SiteHeader({
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.98, opacity: 0.96 }}
                 transition={{ duration: 0.22, ease: "easeOut" }}
-                className="relative w-[min(92vw,560px)]"
+                className="relative w-[min(92vw,560px)] pointer-events-auto"
               >
                 <motion.div
                   animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}

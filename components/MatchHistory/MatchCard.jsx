@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { extractPlayerStats, timeAgo, capitalizeAgent, encodeRiotIdForUrl } from "@/lib/utils";
+import { computeMatchStats } from "@/lib/computeMatchStats";
 import { AgentIcon } from "@/components/ui/AgentIcon";
 import { MapImage } from "@/components/ui/MapImage";
 
@@ -108,7 +109,7 @@ async function fetchMatchDetails(matchId) {
   return res.json();
 }
 
-export default function MatchCard({ match, puuid, region }) {
+export default function MatchCard({ match, puuid, region, analytics }) {
   const [expanded, setExpanded] = useState(false);
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState('desc');
@@ -124,8 +125,41 @@ export default function MatchCard({ match, puuid, region }) {
   // Extract player stats (may be null if match/puuid invalid)
   const playerStats = useMemo(() => {
     if (!match) return null;
-    return extractPlayerStats(activeMatch, puuid);
-  }, [activeMatch, puuid, match]);
+    const stats = extractPlayerStats(activeMatch, puuid);
+    if (!stats) return null;
+    
+    // Add advanced stats from raw if available
+    let advanced = { kastPct: null, firstBloods: null };
+    
+    // 1. Try to compute from Henrik rounds array (most accurate for v3)
+    if (activeMatch._henrik && Array.isArray(activeMatch._henrik.rounds) && activeMatch._henrik.rounds.length > 0) {
+      const computed = computeMatchStats(activeMatch._henrik, puuid);
+      advanced.kastPct = computed.kast_pct;
+      advanced.firstBloods = computed.first_bloods;
+    }
+    
+    // 2. Try to get from Henrik raw player stats (some API responses include it inline)
+    if (advanced.kastPct == null && activeMatch._henrik) {
+      const rawPlayer = activeMatch._henrik?.players?.all_players?.find(p => p.puuid === puuid);
+      if (rawPlayer?.stats) {
+        advanced.kastPct = rawPlayer.stats.kast_pct ?? rawPlayer.stats.kast ?? rawPlayer.stats.kastPercentage ?? null;
+        advanced.firstBloods = rawPlayer.stats.first_bloods ?? rawPlayer.stats.first_kills ?? rawPlayer.stats.firstBloods ?? null;
+      }
+    }
+    
+    // 3. Try to get from analytics prop (passed down from parent pre-fetching)
+    if (advanced.kastPct == null && analytics) {
+      advanced.kastPct = analytics.kast_pct;
+      advanced.firstBloods = analytics.first_bloods;
+    }
+    
+    // 4. Fallback to match object if they were injected at the top level
+    return {
+      ...stats,
+      kastPct: advanced.kastPct ?? activeMatch.kast_pct ?? activeMatch.kastPct ?? null,
+      firstBloods: advanced.firstBloods ?? activeMatch.first_bloods ?? activeMatch.firstBloods ?? null,
+    };
+  }, [activeMatch, puuid, match, analytics]);
 
   // Derive match info
   const { info, mapName, gameMode, timestamp, teams, allPlayers, myTeam, enemyTeam, needsLazyLoad } = useMemo(() => {
@@ -330,27 +364,48 @@ export default function MatchCard({ match, puuid, region }) {
               {gameMode}
             </span>
           </div>
-          {/* Row 2: score + time */}
-          <div className='flex items-center gap-1.5 text-xs text-[var(--text-secondary)] min-w-0'>
+          {/* Row 2: score + time + extra stats */}
+          <div className='flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-[var(--text-secondary)] min-w-0'>
             {score && (
               <>
-                <span className='tabular-nums font-medium text-[var(--text-primary)]'>{score}</span>
+                <span className='tabular-nums font-medium text-[var(--text-primary)] whitespace-nowrap'>{score}</span>
                 <span className='text-[var(--text-muted)]'>·</span>
               </>
             )}
-            <span className='truncate'>{timeAgo(timestamp)}</span>
+            <span className='whitespace-nowrap'>{timeAgo(timestamp)}</span>
+            
+            {(playerStats.kpPct != null || playerStats.kpr != null) && (
+              <>
+                <span className='text-[var(--text-muted)]'>·</span>
+                <div className='flex items-center gap-1.5 whitespace-nowrap'>
+                  {playerStats.kpPct != null && (
+                    <span title="Kill Participation" className='tabular-nums'>
+                      <span className='font-medium text-[var(--text-primary)]'>{playerStats.kpPct.toFixed(0)}%</span> KP
+                    </span>
+                  )}
+                  {playerStats.kpPct != null && playerStats.kpr != null && (
+                    <span className='text-[var(--text-muted)]'>·</span>
+                  )}
+                  {playerStats.kpr != null && (
+                    <span title="Kills Per Round" className='tabular-nums'>
+                      <span className='font-medium text-[var(--text-primary)]'>{playerStats.kpr.toFixed(2)}</span> KPR
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Right: stats column — fixed width, always visible */}
         <div className='shrink-0 flex flex-col items-end justify-center gap-1 w-[72px] text-right'>
-          <p className='text-sm font-bold text-[var(--text-primary)] tabular-nums leading-none'>
+          <p className='text-sm font-bold text-[var(--text-primary)] tabular-nums leading-none' title={playerStats.kastPct != null ? `KAST: ${playerStats.kastPct}%` : 'K/D/A'}>
             {playerStats.kills}/{playerStats.deaths}/{playerStats.assists}
           </p>
-          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none'>
+          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none' title={playerStats.firstBloods != null ? `First Bloods: ${playerStats.firstBloods}` : 'ACS'}>
             <span className='text-[var(--text-primary)] font-medium'>{playerStats.acs}</span> ACS
           </p>
-          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none'>
+          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none' title={`Head: ${playerStats.hsPct.toFixed(0)}% | Body: ${playerStats.bodyPct.toFixed(0)}% | Leg: ${playerStats.legPct.toFixed(0)}%`}>
             <span className='text-[var(--text-primary)] font-medium'>{playerStats.hsPct.toFixed(0)}%</span> HS
           </p>
           {/* RR change for competitive matches */}

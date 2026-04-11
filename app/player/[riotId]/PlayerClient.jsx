@@ -11,10 +11,11 @@ import MatchHistory from "@/components/MatchHistory";
 import ShareCard from "@/components/ShareCard";
 import Toast from "@/components/ui/Toast";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
-import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar } from "@/components/Charts";
+import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar, AttackDefenseByMapChart, MapRankingCards } from "@/components/Charts";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
 import { exportFullJSON } from "@/lib/exportData";
+import { computeMatchStats } from "@/lib/computeMatchStats";
 import { OptOutBanner } from "@/components/OptOutBanner";
 import { OptedOutCard } from "@/components/OptedOutCard";
 import SiteHeader from "@/components/SiteHeader";
@@ -26,6 +27,8 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
   const { gameName, tagLine } = decodeRiotIdFromUrl(resolvedParams.riotId);
 
   const [filterMode, setFilterMode] = useState('competitive');
+  const [analyticsByMatchId, setAnalyticsByMatchId] = useState({});
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   const { data: account, isLoading: accountLoading, error: accountError } = usePlayer(gameName, tagLine, region);
   const { matches, matchListLoading, matchListError, hasMore, loadMore, loadingMore, refetch, isAutoLoading, totalLoadedMatches } = useMatches(
@@ -64,6 +67,128 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
 
   const aggregated = useMemo(() => aggregateStats(matchStats), [matchStats]);
   const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
+
+  useEffect(() => {
+    const analyticsRef = { current: analyticsByMatchId };
+    
+    let cancelled = false;
+
+    async function hydrateAnalytics() {
+      if (!account?.puuid || !filteredMatches.length) {
+        if (!cancelled) setAnalyticsByMatchId({});
+        return;
+      }
+
+      if (!cancelled) setAnalyticsLoading(true);
+
+      const needsDetails = filteredMatches
+        .filter((m) => m?.matchId)
+        .filter((m) => !analyticsRef.current[m.matchId])
+        .filter((m) => {
+          const hasRootAdvanced =
+            m.kast_pct != null ||
+            m.first_bloods != null ||
+            m.first_deaths != null ||
+            m.side_attack_rounds != null ||
+            m.side_defense_rounds != null;
+          const hasRawRounds = Array.isArray(m?._henrik?.rounds) && m._henrik.rounds.length > 0;
+          return !hasRootAdvanced && !hasRawRounds;
+        });
+
+      if (needsDetails.length === 0) {
+        if (!cancelled) setAnalyticsLoading(false);
+        return;
+      }
+
+      async function fetchWithRetry(matchId, attempts = 3) {
+        for (let i = 0; i <= attempts; i++) {
+          try {
+            const res = await fetch(`/api/riot/match-detail?matchId=${encodeURIComponent(matchId)}`);
+            if (res.ok) return await res.json();
+          } catch {
+          }
+          if (i < attempts) {
+            await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+          }
+        }
+        return null;
+      }
+
+      const entries = [];
+      for (const m of needsDetails) {
+        if (cancelled) break;
+        const detail = await fetchWithRetry(m.matchId, 3);
+        if (!detail) continue;
+        const raw = detail?._henrik || detail;
+        const adv = computeMatchStats(raw, account.puuid);
+        entries.push([m.matchId, adv]);
+      }
+
+      if (cancelled) return;
+
+      const next = {};
+      for (const item of entries) {
+        if (item && item[0] && item[1]) next[item[0]] = item[1];
+      }
+      if (Object.keys(next).length > 0) {
+        setAnalyticsByMatchId((prev) => ({ ...prev, ...next }));
+      }
+      setAnalyticsLoading(false);
+    }
+
+    hydrateAnalytics();
+    return () => {
+      cancelled = true;
+    };
+  }, [filteredMatches, account?.puuid]);
+
+  const analyticsMatches = useMemo(() => {
+    if (!account?.puuid) return [];
+
+    return filteredMatches
+      .map((m) => {
+        const base = extractPlayerStats(m, account.puuid);
+        if (!base) return null;
+
+        const mode = (m.info?.gameMode || m.queue || m.mode || "").toLowerCase();
+        const matchDate = m.info?.gameStartMillis
+          ? new Date(m.info.gameStartMillis).toISOString()
+          : null;
+
+        let advanced = null;
+        if (m?._henrik && Array.isArray(m._henrik.rounds) && m._henrik.rounds.length > 0) {
+          advanced = computeMatchStats(m._henrik, account.puuid);
+        } else if (m?.matchId && analyticsByMatchId[m.matchId]) {
+          advanced = analyticsByMatchId[m.matchId];
+        }
+
+        const normalizedPlayer = m.players?.find((p) => p.puuid === account.puuid);
+        const rawPlayer = m?._henrik?.players?.all_players?.find((p) => p.puuid === account.puuid);
+        const pStats = normalizedPlayer?.stats || rawPlayer?.stats || {};
+
+        const inlineKast = pStats.kast_pct ?? pStats.kast ?? pStats.kastPercentage ?? null;
+        const inlineFb = pStats.first_bloods ?? pStats.first_kills ?? pStats.firstBloods ?? pStats.firstKills ?? null;
+        const inlineFd = pStats.first_deaths ?? pStats.firstDeaths ?? null;
+
+        return {
+          map: m.map || m.info?.mapId || "Unknown",
+          result: base.drew ? "Draw" : base.won ? "Win" : "Loss",
+          kd: base.kd,
+          acs: base.acs,
+          hs_pct: base.hsPct,
+          match_date: matchDate,
+          mode,
+          kast_pct: advanced?.kast_pct ?? inlineKast ?? m.kast_pct ?? m.kastPct ?? null,
+          first_bloods: advanced?.first_bloods ?? inlineFb ?? m.first_bloods ?? m.firstBloods ?? null,
+          first_deaths: advanced?.first_deaths ?? inlineFd ?? m.first_deaths ?? m.firstDeaths ?? null,
+          side_attack_rounds: advanced?.side_attack_rounds ?? m.side_attack_rounds ?? m.sideAttackRounds ?? null,
+          side_attack_wins: advanced?.side_attack_wins ?? m.side_attack_wins ?? m.sideAttackWins ?? null,
+          side_defense_rounds: advanced?.side_defense_rounds ?? m.side_defense_rounds ?? m.sideDefenseRounds ?? null,
+          side_defense_wins: advanced?.side_defense_wins ?? m.side_defense_wins ?? m.sideDefenseWins ?? null,
+        };
+      })
+      .filter(Boolean);
+  }, [filteredMatches, account?.puuid, analyticsByMatchId]);
 
   const rankTier = "Gold";
 
@@ -112,6 +237,10 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
                 <PerformanceRadar stats={aggregated} rankTier={rankTier} />
                 <AgentPieChart agentStats={agentStats} />
                 <AgentWinRateBar agentStats={agentStats} />
+                <AttackDefenseByMapChart matches={analyticsMatches} />
+              </div>
+              <div className='mt-4'>
+                <MapRankingCards matches={analyticsMatches} />
               </div>
             </section>
           )}
@@ -142,6 +271,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
               hasMore={hasMore}
               loadMore={loadMore}
               onRefresh={refetch}
+              analyticsByMatchId={analyticsByMatchId}
             />
           </div>
 

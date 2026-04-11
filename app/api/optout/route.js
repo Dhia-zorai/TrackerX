@@ -33,9 +33,6 @@ function getClientIp(req) {
 }
 
 export async function POST(request) {
-  console.log('SERVICE KEY EXISTS:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
-  console.log('SUPABASE URL EXISTS:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
-  
   const clientIp = getClientIp(request);
   
   if (!checkRateLimit(clientIp)) {

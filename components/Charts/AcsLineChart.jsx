@@ -7,11 +7,22 @@ const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className='glass-accent rounded-lg px-3 py-2 text-xs'>
-      <p className='text-[var(--text-secondary)]'>Game {d.game}</p>
-      <p className='font-semibold text-[var(--text-primary)]'>ACS: {d.acs}</p>
-      <p className='text-[var(--text-secondary)]'>K/D: {d.kd}</p>
-      <span className={d.won ? 'text-[var(--win)]' : 'text-[var(--loss)]'}>{d.won ? 'Win' : 'Loss'}</span>
+    <div className='bg-[var(--bg-elevated)] border border-[var(--border-accent)] shadow-2xl rounded-lg px-4 py-3 text-xs min-w-[140px]'>
+      <p className='font-bold text-[var(--text-primary)] mb-2 pb-2 border-b border-[var(--border)]'>Game {d.game}</p>
+      <div className='flex flex-col gap-2'>
+        <p className='flex items-center justify-between gap-4'>
+          <span className='text-[var(--text-secondary)] font-medium'>ACS</span>
+          <span className='font-bold text-[var(--text-primary)]'>{d.acs}</span>
+        </p>
+        <p className='flex items-center justify-between gap-4'>
+          <span className='text-[var(--text-secondary)] font-medium'>K/D Ratio</span>
+          <span className='font-bold text-[var(--text-primary)]'>{d.kd}</span>
+        </p>
+        <p className='flex items-center justify-between gap-4'>
+          <span className='text-[var(--text-secondary)] font-medium'>Result</span>
+          <span className={`font-bold ${d.won ? 'text-[var(--win)]' : 'text-[var(--loss)]'}`}>{d.won ? 'Win' : 'Loss'}</span>
+        </p>
+      </div>
     </div>
   );
 };
