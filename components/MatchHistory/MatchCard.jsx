@@ -442,104 +442,100 @@ export default function MatchCard({ match, puuid, region, analytics }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={'glass rounded-xl overflow-hidden border-l-4 ' + borderColor}
+      className={'glass rounded-xl overflow-hidden border-l-4 relative ' + borderColor}
       style={{ background: accentBg }}
     >
+      {/* Background Map Image taking half the card width fading to the right */}
+      <div className="absolute inset-y-0 left-0 w-1/2 pointer-events-none opacity-90"
+           style={{ 
+             maskImage: 'linear-gradient(to right, black 0%, transparent 100%)',
+             WebkitMaskImage: 'linear-gradient(to right, black 0%, transparent 100%)'
+           }}>
+        <MapImage
+          mapName={mapName}
+          width={800}
+          height={400}
+          className='w-full h-full object-cover'
+          showName={false}
+        />
+        {/* Dark overlay to ensure text contrast on top of the image */}
+        <div className='absolute inset-0 bg-black/40' />
+      </div>
+
       {/* Main row */}
       <div
-        className='flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
+        className='relative z-10 flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors'
         onClick={handleExpand}
       >
-        {/* Map block - Enhanced with thumbnail and gradient overlay */}
+        {/* Left: Map info block (removed background map since it's now full card half) */}
         <div
-          className='relative w-11 h-11 rounded-lg shrink-0 border border-[var(--border)] self-center overflow-hidden'
-          style={{ background: accentBg }}
+          className='relative w-12 h-12 rounded-lg shrink-0 border border-white/20 self-center overflow-hidden flex flex-col items-center justify-center shadow-lg bg-black/60 backdrop-blur-sm'
         >
-          {/* Map image as background */}
-          <MapImage
-            mapName={mapName}
-            width={44}
-            height={44}
-            className='absolute inset-0 object-cover opacity-100'
-            showName={false}
-          />
-          
-          {/* Dark gradient overlay for text contrast */}
-          <div 
-            className='absolute inset-0 z-[5]'
-            style={{ 
-              background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)' 
-            }}
-          />
-          
-          {/* Text overlay */}
-          <div className='relative z-10 flex flex-col items-center justify-center h-full'>
-            <span className='text-[7px] font-semibold text-white uppercase tracking-widest leading-none'>MAP</span>
-            <span className='text-[10px] font-bold text-white capitalize mt-0.5 leading-tight text-center px-0.5'>{mapName}</span>
-          </div>
+          <span className='text-[8px] font-bold text-white/90 uppercase tracking-widest leading-none mb-1'>MAP</span>
+          <span className='text-xs font-extrabold text-white capitalize leading-tight text-center px-0.5 truncate w-full'>{mapName}</span>
         </div>
 
         {/* Middle: two stacked rows */}
         <div className='flex-1 min-w-0 flex flex-col justify-center gap-1.5'>
           {/* Row 1: result chip + agent icon + agent name + mode */}
-          <div className='flex items-center gap-2 min-w-0'>
+          <div className='flex items-center gap-2 min-w-0 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]'>
             <ResultChip won={playerStats.won} drew={playerStats.drew} />
             
             {/* Agent icon */}
             <AgentIcon
               agentName={playerStats.agentId}
               size={20}
-              className='rounded shrink-0'
+              className='rounded shrink-0 shadow-md'
             />
             
             {/* Agent name */}
-            <span className='text-xs font-semibold text-[var(--text-primary)] truncate'>
+            <span className='text-xs font-extrabold text-white truncate'>
               {capitalizeAgent(playerStats.agentId) || 'Unknown'}
             </span>
             
-            <span className='text-xs text-[var(--text-secondary)] capitalize truncate hidden xs:inline'>
+            <span className='text-xs font-semibold text-white/90 capitalize truncate hidden xs:inline'>
               {gameMode}
             </span>
           </div>
           {/* Row 2: score + time + extra stats */}
-          <div className='flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-[var(--text-secondary)] min-w-0'>
+          <div className='flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] min-w-0 font-semibold'>
             {score && (
               <>
-                <span className='tabular-nums font-medium text-[var(--text-primary)] whitespace-nowrap'>{score}</span>
-                <span className='text-[var(--text-muted)]'>·</span>
+                <span className='tabular-nums font-extrabold text-white whitespace-nowrap'>{score}</span>
+                <span className='text-white/70'>·</span>
               </>
             )}
-            <span className='whitespace-nowrap'>{timeAgo(timestamp)}</span>
+            <span className='whitespace-nowrap text-white/90'>{timeAgo(timestamp)}</span>
             
             {(playerStats.kpPct != null || playerStats.kpr != null) && (
               <>
-                <span className='text-[var(--text-muted)]'>•</span>
+                <span className='text-white/70'>•</span>
                 <div className='flex items-center gap-1.5 whitespace-nowrap'>
                   {playerStats.kpPct != null && (
                     <span title="Kill Participation" className='tabular-nums'>
-                      <span className='font-medium text-[var(--text-primary)]'>{playerStats.kpPct.toFixed(0)}%</span> KP
+                      <span className='font-extrabold text-white'>{playerStats.kpPct.toFixed(0)}%</span> KP
                     </span>
                   )}
                   {playerStats.kpPct != null && playerStats.kpr != null && (
-                    <span className='text-[var(--text-muted)]'>•</span>
+                    <span className='text-white/70'>•</span>
                   )}
                   {playerStats.kpr != null && (
                     <span title="Kills Per Round" className='tabular-nums'>
-                      <span className='font-medium text-[var(--text-primary)]'>{playerStats.kpr.toFixed(2)}</span> KPR
+                      <span className='font-extrabold text-white'>{playerStats.kpr.toFixed(2)}</span> KPR
                     </span>
                   )}
                   {playerStats.clutches > 0 && (
                     <>
-                      <span className='text-[var(--text-muted)]'>•</span>
-                      <span title="Clutch Wins" className='tabular-nums font-bold text-[var(--accent)]'>
+                      <span className='text-white/70'>•</span>
+                      <span title="Clutch Wins" className='tabular-nums font-extrabold text-[var(--accent)]'>
                         {playerStats.clutches} Clutch{playerStats.clutches > 1 ? 'es' : ''}
                       </span>
                     </>
                   )}
                   {playerStats.multiKills > 0 && (
                     <>
-                      <span className='text-[var(--text-muted)]'>•</span>
-                      <span title="3+ Kill Rounds" className='tabular-nums font-bold text-[var(--win)]'>
+                      <span className='text-white/70'>•</span>
+                      <span title="3+ Kill Rounds" className='tabular-nums font-extrabold text-[var(--win)]'>
                         {playerStats.multiKills} Multi-Kill{playerStats.multiKills > 1 ? 's' : ''}
                       </span>
                     </>
@@ -551,26 +547,26 @@ export default function MatchCard({ match, puuid, region, analytics }) {
         </div>
 
         {/* Right: stats column — fixed width, always visible */}
-        <div className='shrink-0 flex flex-col items-end justify-center gap-1 w-[72px] text-right'>
-          <p className='text-sm font-bold text-[var(--text-primary)] tabular-nums leading-none' title={playerStats.kastPct != null ? `KAST: ${playerStats.kastPct}%` : 'K/D/A'}>
+        <div className='shrink-0 flex flex-col items-end justify-center gap-1 w-[72px] text-right drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]'>
+          <p className='text-sm font-extrabold text-white tabular-nums leading-none' title={playerStats.kastPct != null ? `KAST: ${playerStats.kastPct}%` : 'K/D/A'}>
             {playerStats.kills}/{playerStats.deaths}/{playerStats.assists}
           </p>
-          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none' title={playerStats.firstBloods != null ? `First Bloods: ${playerStats.firstBloods}` : 'ACS'}>
-            <span className='text-[var(--text-primary)] font-medium'>{playerStats.acs}</span> ACS
+          <p className='text-[10px] text-white/90 tabular-nums leading-none font-semibold' title={playerStats.firstBloods != null ? `First Bloods: ${playerStats.firstBloods}` : 'ACS'}>
+            <span className='text-white font-extrabold'>{playerStats.acs}</span> ACS
           </p>
-          <p className='text-[10px] text-[var(--text-secondary)] tabular-nums leading-none' title={`Head: ${playerStats.hsPct.toFixed(0)}% | Body: ${playerStats.bodyPct.toFixed(0)}% | Leg: ${playerStats.legPct.toFixed(0)}%`}>
-            <span className='text-[var(--text-primary)] font-medium'>{playerStats.hsPct.toFixed(0)}%</span> HS
+          <p className='text-[10px] text-white/90 tabular-nums leading-none font-semibold' title={`Head: ${playerStats.hsPct.toFixed(0)}% | Body: ${playerStats.bodyPct.toFixed(0)}% | Leg: ${playerStats.legPct.toFixed(0)}%`}>
+            <span className='text-white font-extrabold'>{playerStats.hsPct.toFixed(0)}%</span> HS
           </p>
           {/* RR change for competitive matches */}
           {gameMode.toLowerCase() === 'competitive' && (
-            <p className={`text-[10px] tabular-nums leading-none font-medium ${
+            <p className={`text-[10px] tabular-nums leading-none font-extrabold ${
               playerStats.mmrChange == null
-                ? 'text-[var(--text-muted)]'
+                ? 'text-white/70'
                 : playerStats.mmrChange > 0
                   ? 'text-[var(--win)]'
                   : playerStats.mmrChange < 0
                     ? 'text-[var(--loss)]'
-                    : 'text-[var(--text-secondary)]'
+                    : 'text-white/90'
             }`}>
               {playerStats.mmrChange == null
                 ? 'RR N/A'
@@ -581,7 +577,7 @@ export default function MatchCard({ match, puuid, region, analytics }) {
 
         <ChevronDown
           size={15}
-          className={'text-[var(--text-muted)] transition-transform duration-200 shrink-0 ' + (expanded ? 'rotate-180' : '')}
+          className={'text-white/80 transition-transform duration-200 shrink-0 drop-shadow-md ' + (expanded ? 'rotate-180' : '')}
         />
       </div>
 
@@ -593,7 +589,7 @@ export default function MatchCard({ match, puuid, region, analytics }) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className='overflow-hidden border-t border-[var(--border)]'
+            className='overflow-hidden border-t border-white/10 relative z-10 bg-black/40'
           >
             <div className='p-4 space-y-4'>
               {renderScoreboardContent()}
