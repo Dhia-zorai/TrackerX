@@ -6,3 +6,5 @@ export { default as KastTrendChart } from "./KastTrendChart";
 export { default as AttackDefenseByMapChart } from "./AttackDefenseByMapChart";
 export { default as OpeningDuelsCard } from "./OpeningDuelsCard";
 export { default as MapRankingCards } from "./MapRankingCards";
+export { default as MapAgentSynergy } from "./MapAgentSynergy";
+

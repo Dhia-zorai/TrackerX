@@ -29,23 +29,27 @@ export default function StatCard({ label, value, sub, icon: Icon, color, delay =
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -2, boxShadow: '0 8px 32px var(--accent-glow)' }}
-      className='glass-accent rounded-xl p-5 cursor-default'
+      className='glass-accent rounded-xl p-5 cursor-default flex flex-col justify-between'
     >
       <div className='flex items-start justify-between'>
         <span className='text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider'>{label}</span>
         {Icon && (
-          <div className='w-7 h-7 rounded-lg flex items-center justify-center'
+          <div className='w-7 h-7 rounded-lg flex items-center justify-center shrink-0'
             style={{ background: color ? color + '22' : 'var(--accent-dim)' }}>
             <Icon size={14} style={{ color: color || 'var(--accent)' }} />
           </div>
         )}
       </div>
-      <div className='mt-3'>
-        <p className='text-3xl font-bold text-[var(--text-primary)] tracking-tight'>
-          {typeof value === 'number' ? <AnimatedNumber value={numVal} decimals={decimals} /> : value}
-          {suffix && <span className='text-lg ml-0.5 text-[var(--text-secondary)]'>{suffix}</span>}
-        </p>
-        {sub && <p className='text-xs text-[var(--text-secondary)] mt-1'>{sub}</p>}
+      <div className='mt-3 flex-1 flex flex-col justify-end'>
+        <div className='flex items-baseline gap-2'>
+          <p className='text-3xl font-bold text-[var(--text-primary)] tracking-tight'>
+            {typeof value === 'number' ? <AnimatedNumber value={numVal} decimals={decimals} /> : value}
+            {suffix && <span className='text-lg ml-0.5 text-[var(--text-secondary)]'>{suffix}</span>}
+          </p>
+        </div>
+        <div className='mt-1 min-h-[16px]'>
+          {sub && <p title={sub} className='text-[10px] sm:text-[11px] text-[var(--text-secondary)] truncate w-full'>{sub}</p>}
+        </div>
       </div>
     </motion.div>
   );

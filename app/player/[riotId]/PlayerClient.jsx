@@ -11,7 +11,7 @@ import MatchHistory from "@/components/MatchHistory";
 import ShareCard from "@/components/ShareCard";
 import Toast from "@/components/ui/Toast";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
-import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar, AttackDefenseByMapChart, MapRankingCards } from "@/components/Charts";
+import { AgentPieChart, AgentWinRateBar, AcsLineChart, PerformanceRadar, AttackDefenseByMapChart, MapRankingCards, MapAgentSynergy } from "@/components/Charts";
 import ErrorState from "@/components/ui/ErrorState";
 import { decodeRiotIdFromUrl, extractPlayerStats, aggregateStats, getAgentStats } from "@/lib/utils";
 import { exportFullJSON } from "@/lib/exportData";
@@ -239,6 +239,9 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
                 <AgentPieChart agentStats={agentStats} />
                 <AgentWinRateBar agentStats={agentStats} />
                 <AttackDefenseByMapChart matches={analyticsMatches} />
+              </div>
+              <div className='mt-4'>
+                <MapAgentSynergy matches={filteredMatches} puuid={account?.puuid} />
               </div>
               <div className='mt-4'>
                 <MapRankingCards matches={analyticsMatches} />
