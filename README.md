@@ -14,7 +14,7 @@
 ### Hero Preview
 
 <p align="center">
-  <img src="public/screenshots/main page.png" alt="TrackerX - Main Page" width="800" />
+  <img src="public/screenshots/main_page.png" alt="TrackerX - Main Page" width="800" />
 </p>
 
 ---
@@ -45,7 +45,7 @@ TrackerX is built for VALORANT players who want fast, accurate insight into thei
 ### Performance Dashboard
 
 <p align="center">
-  <img src="public/screenshots/quick player stats1.png" alt="Performance Dashboard - K/D, ACS, Win Rate, Headshot %" width="600" />
+  <img src="public/screenshots/quick_player_stats.png" alt="Performance Dashboard - K/D, ACS, Win Rate, Headshot %" width="600" />
 </p>
 
 Live snapshot of your stats: K/D, ACS, win rate, headshot %, kill participation, and more. Always calculated from the currently loaded match pool.
@@ -81,7 +81,7 @@ Expandable match cards showing full scoreboards and advanced metrics. Click any 
 ### Data Export
 
 <p align="center">
-  <img src="public/screenshots/Export json.png" alt="Data Export - JSON Download with Filter Options" width="600" />
+  <img src="public/screenshots/export_json.png" alt="Data Export - JSON Download with Filter Options" width="600" />
 </p>
 
 Export your match data as highly structured JSON. Choose between All Modes or Competitive-only exports. The payload includes granular round-by-round insights (economy, trade kills, multi-kills) perfect for feeding into AI analysis tools or custom scripts.
