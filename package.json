@@ -4,21 +4,13 @@
   "private": true,
   "description": "VALORANT Stats Tracker - Performance analytics and match history",
   "author": "TrackerX Maintainers <noreply@trackerx.app>",
-  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "download:assets": "node scripts/download-assets.js",
-    "download:ranks": "node scripts/download-ranks.js",
-    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron:prepare": "node scripts/prepare-standalone.js",
-    "electron:build": "npm run build && npm run electron:prepare && electron-builder",
-    "electron:build:win": "npm run build && npm run electron:prepare && electron-builder --win",
-    "electron:build:mac": "npm run build && npm run electron:prepare && electron-builder --mac",
-    "electron:build:linux": "npm run build && npm run electron:prepare && electron-builder --linux",
-    "electron:build:all": "npm run build && npm run electron:prepare && electron-builder --win --mac --linux"
+    "download:ranks": "node scripts/download-ranks.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
@@ -35,83 +27,8 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "concurrently": "^9.2.1",
-    "electron": "^41.1.0",
-    "electron-builder": "^26.8.1",
-    "electron-squirrel-startup": "^1.0.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.0",
-    "tailwindcss": "^4",
-    "wait-on": "^9.0.4"
-  },
-  "build": {
-    "appId": "com.trackerx.app",
-    "productName": "TrackerX",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "asar": false,
-    "files": [
-      "electron/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": ".next/standalone",
-        "to": "standalone",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.ico",
-      "signAndEditExecutable": false
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "public/icon.icns",
-      "category": "public.app-category.games"
-    },
-    "linux": {
-      "maintainer": "TrackerX Maintainers <noreply@trackerx.app>",
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.png",
-      "category": "Game"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    }
+    "tailwindcss": "^4"
   }
 }
