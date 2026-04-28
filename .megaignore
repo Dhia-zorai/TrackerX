@@ -1,10 +1,6 @@
 # Directories to exclude from MEGA sync
 -d:node_modules
 -d:.next
--d:dist-electron
--d:dist-electron-v2
--d:dist-electron-new
--d:.electron
 -d:.git
 
 # Build artifacts (exclude)
