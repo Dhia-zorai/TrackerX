@@ -8,6 +8,51 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import { usePlayerStore } from "@/store/playerStore";
 import { encodeRiotIdForUrl, parseRiotId } from "@/lib/utils";
 
+function RecentSearchesDropdown({ searchFocused, recentSearches, clearRecentSearches, removeRecentSearch, goToPlayer }) {
+  if (!searchFocused || recentSearches.length === 0) return null;
+
+  return (
+    <div className="mt-2 rounded-xl overflow-hidden z-50 border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
+        <span className="text-xs font-medium text-[var(--text-secondary)]">Recent Searches</span>
+        <button
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            clearRecentSearches();
+          }}
+          className="text-xs text-[var(--text-secondary)] hover:text-[var(--loss)] transition-colors"
+        >
+          Clear all
+        </button>
+      </div>
+
+      {recentSearches.slice(0, 4).map((s) => (
+        <div
+          key={s.riotId}
+          className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--accent-dim)] transition-colors group cursor-pointer"
+          onMouseDown={() => goToPlayer(s.riotId)}
+        >
+          <Clock size={12} className="text-[var(--text-secondary)] shrink-0" />
+          <span className="flex-1 text-sm text-[var(--text-primary)]">
+            {s.riotId} <span className="ml-2 text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
+          </span>
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              removeRecentSearch(s.riotId);
+            }}
+            className="opacity-0 group-hover:opacity-100 text-[var(--text-secondary)] hover:text-[var(--loss)] transition-all"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function SiteHeader({
   showBack = false,
   region,
@@ -106,51 +151,6 @@ export default function SiteHeader({
     setSearchFocused(true);
   }
 
-  function RecentSearchesDropdown() {
-    if (!searchFocused || recentSearches.length === 0) return null;
-
-    return (
-      <div className="mt-2 rounded-xl overflow-hidden z-50 border border-[var(--border-accent)] bg-[var(--bg-elevated)]">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
-          <span className="text-xs font-medium text-[var(--text-secondary)]">Recent Searches</span>
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              clearRecentSearches();
-            }}
-            className="text-xs text-[var(--text-secondary)] hover:text-[var(--loss)] transition-colors"
-          >
-            Clear all
-          </button>
-        </div>
-
-        {recentSearches.slice(0, 4).map((s) => (
-          <div
-            key={s.riotId}
-            className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--accent-dim)] transition-colors group cursor-pointer"
-            onMouseDown={() => goToPlayer(s.riotId)}
-          >
-            <Clock size={12} className="text-[var(--text-secondary)] shrink-0" />
-            <span className="flex-1 text-sm text-[var(--text-primary)]">
-              {s.riotId} <span className="ml-2 text-xs text-[var(--text-secondary)]">{s.region.toUpperCase()}</span>
-            </span>
-            <button
-              type="button"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                removeRecentSearch(s.riotId);
-              }}
-              className="opacity-0 group-hover:opacity-100 text-[var(--text-secondary)] hover:text-[var(--loss)] transition-all"
-            >
-              <X size={12} />
-            </button>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div ref={rootRef} className={`relative flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2 min-w-0">
@@ -195,7 +195,7 @@ export default function SiteHeader({
                 </button>
               </motion.div>
 
-              {!enableSpotlight && <RecentSearchesDropdown />}
+              {!enableSpotlight && <RecentSearchesDropdown searchFocused={searchFocused} recentSearches={recentSearches} clearRecentSearches={clearRecentSearches} removeRecentSearch={removeRecentSearch} goToPlayer={goToPlayer} />}
             </form>
 
             <button
@@ -247,7 +247,7 @@ export default function SiteHeader({
               </motion.div>
             </form>
 
-            <RecentSearchesDropdown />
+            <RecentSearchesDropdown searchFocused={searchFocused} recentSearches={recentSearches} clearRecentSearches={clearRecentSearches} removeRecentSearch={removeRecentSearch} goToPlayer={goToPlayer} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -299,7 +299,7 @@ export default function SiteHeader({
                   </button>
                 </motion.div>
 
-                <RecentSearchesDropdown />
+                <RecentSearchesDropdown searchFocused={searchFocused} recentSearches={recentSearches} clearRecentSearches={clearRecentSearches} removeRecentSearch={removeRecentSearch} goToPlayer={goToPlayer} />
               </motion.form>
             </div>
           </motion.div>

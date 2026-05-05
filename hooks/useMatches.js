@@ -113,8 +113,8 @@ export function useMatches(puuid, region = "na", name, tag, mode = "competitive"
     }
   }, [matchesQuery.isLoading, baseMatches, puuid, region, name, tag, mode]);
 
-  // Reset extra matches when puuid changes or mode changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setExtraMatches([]);
     setPage(0);
     setHasMoreState(true);

@@ -63,12 +63,11 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
   const matchStats = useMemo(() => {
     if (!account?.puuid || !filteredMatches) return [];
     return filteredMatches.map(m => extractPlayerStats(m, account.puuid)).filter(Boolean);
-  }, [filteredMatches, account?.puuid]);
+  }, [filteredMatches, account]);
 
   const aggregated = useMemo(() => aggregateStats(matchStats), [matchStats]);
   const agentStats = useMemo(() => getAgentStats(matchStats), [matchStats]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const analyticsRef = { current: analyticsByMatchId };
     
@@ -141,6 +140,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredMatches, account?.puuid]);
 
   const analyticsMatches = useMemo(() => {
@@ -189,7 +189,7 @@ export function PlayerClient({ resolvedParams, isAdmin }) {
         };
       })
       .filter(Boolean);
-  }, [filteredMatches, account?.puuid]);
+  }, [filteredMatches, account, analyticsByMatchId]);
 
   const rankTier = "Gold";
 
